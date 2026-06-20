@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "222271258302",
+    "project_id": "digiqueue-c6605",
+    "storage_bucket": "digiqueue-c6605.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:222271258302:android:dfd1742c7977254fa1e8ef",
+        "android_client_info": {
+          "package_name": "com.digiqueue.digital_queue"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBCJQkJvD12SSCFLm4Lj0XLdTWy9pcjiL4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
