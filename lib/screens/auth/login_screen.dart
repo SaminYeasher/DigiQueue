@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/auth_provider.dart';
 import '../../theme/app_theme.dart';
-import 'role_select_screen.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -21,6 +20,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
   bool _isRegistering = false;
   bool _isLoading = false;
   String? _errorMessage;
+  String _selectedRole = 'student';
 
   late AnimationController _fadeController;
   late AnimationController _slideController;
@@ -75,24 +75,18 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
     super.dispose();
   }
 
-  Future<void> _signInAnonymously() async {
-    setState(() {
-      _isLoading = true;
-      _errorMessage = null;
-    });
-    try {
-      final authService = ref.read(authServiceProvider);
-      await authService.signInAnonymously();
-      if (mounted) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const RoleSelectScreen()),
-        );
-      }
-    } catch (e) {
-      setState(() => _errorMessage = e.toString());
-    } finally {
-      if (mounted) setState(() => _isLoading = false);
+  /// Validate .edu email
+  String? _validateEduEmail(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'Enter your email';
     }
+    if (!value.contains('@')) {
+      return 'Enter a valid email address';
+    }
+    if (!value.trim().toLowerCase().endsWith('.edu.bd')) {
+      return 'Only .edu.bd email addresses are allowed';
+    }
+    return null;
   }
 
   Future<void> _submitEmailForm() async {
@@ -110,18 +104,21 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
           email: _emailController.text.trim(),
           password: _passwordController.text,
           displayName: _nameController.text.trim(),
+          role: _selectedRole,
         );
+        // Set the role in local state after registration
+        ref.read(userRoleProvider.notifier).state =
+            _selectedRole == 'student'
+                ? UserRole.student
+                : UserRole.professor;
       } else {
         await authService.signInWithEmail(
           email: _emailController.text.trim(),
           password: _passwordController.text,
         );
+        // Role will be loaded from Firestore profile
       }
-      if (mounted) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const RoleSelectScreen()),
-        );
-      }
+      // Auth state change will trigger navigation via _AuthGate
     } catch (e) {
       setState(() => _errorMessage = e.toString());
     } finally {
@@ -193,51 +190,36 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                               color: AppColors.textSecondary,
                             ),
                       ),
-                      const SizedBox(height: 48),
-
-                      // ── Guest Sign-In Button ──
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton.icon(
-                          onPressed: _isLoading ? null : _signInAnonymously,
-                          icon: const Icon(Icons.flash_on_rounded, size: 20),
-                          label: const Text('Continue as Guest'),
-                          style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 18),
-                            backgroundColor: AppColors.primary,
+                      const SizedBox(height: 12),
+                      // .edu notice
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: AppColors.primary.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            color: AppColors.primary.withValues(alpha: 0.2),
                           ),
                         ),
-                      ),
-                      const SizedBox(height: 24),
-
-                      // ── Divider ──
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Container(
-                              height: 1,
-                              color: AppColors.textMuted.withValues(alpha: 0.3),
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            child: Text(
-                              'or sign in with email',
+                        child: const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.school_rounded,
+                                color: AppColors.primary, size: 16),
+                            SizedBox(width: 6),
+                            Text(
+                              '.edu.bd email required',
                               style: TextStyle(
-                                color: AppColors.textMuted,
-                                fontSize: 13,
+                                color: AppColors.primary,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
                               ),
                             ),
-                          ),
-                          Expanded(
-                            child: Container(
-                              height: 1,
-                              color: AppColors.textMuted.withValues(alpha: 0.3),
-                            ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                      const SizedBox(height: 24),
+                      const SizedBox(height: 32),
 
                       // ── Email/Password Form ──
                       Container(
@@ -261,19 +243,52 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                       : null,
                                 ),
                                 const SizedBox(height: 16),
+                                // Role selector
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 4, vertical: 4),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.surfaceCard,
+                                    borderRadius: BorderRadius.circular(14),
+                                    border: Border.all(
+                                      color: AppColors.textMuted
+                                          .withValues(alpha: 0.3),
+                                    ),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      _RoleTab(
+                                        label: 'Student',
+                                        icon: Icons.school_rounded,
+                                        isSelected:
+                                            _selectedRole == 'student',
+                                        onTap: () => setState(
+                                            () => _selectedRole = 'student'),
+                                      ),
+                                      _RoleTab(
+                                        label: 'Faculty',
+                                        icon:
+                                            Icons.cast_for_education_rounded,
+                                        isSelected:
+                                            _selectedRole == 'faculty',
+                                        onTap: () => setState(
+                                            () => _selectedRole = 'faculty'),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
                               ],
                               TextFormField(
                                 controller: _emailController,
                                 keyboardType: TextInputType.emailAddress,
                                 decoration: const InputDecoration(
-                                  labelText: 'Email',
+                                  labelText: 'University Email',
+                                  hintText: 'you@university.edu.bd',
                                   prefixIcon:
                                       Icon(Icons.email_outlined),
                                 ),
-                                validator: (v) =>
-                                    v == null || !v.contains('@')
-                                        ? 'Enter a valid email'
-                                        : null,
+                                validator: _validateEduEmail,
                               ),
                               const SizedBox(height: 16),
                               TextFormField(
@@ -374,6 +389,66 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                 ),
               ),
             ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _RoleTab extends StatelessWidget {
+  final String label;
+  final IconData icon;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const _RoleTab({
+    required this.label,
+    required this.icon,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: GestureDetector(
+        onTap: onTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          decoration: BoxDecoration(
+            color: isSelected
+                ? AppColors.primary.withValues(alpha: 0.2)
+                : Colors.transparent,
+            borderRadius: BorderRadius.circular(10),
+            border: isSelected
+                ? Border.all(
+                    color: AppColors.primary.withValues(alpha: 0.4))
+                : null,
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                icon,
+                size: 18,
+                color: isSelected
+                    ? AppColors.primary
+                    : AppColors.textMuted,
+              ),
+              const SizedBox(width: 6),
+              Text(
+                label,
+                style: TextStyle(
+                  color: isSelected
+                      ? AppColors.primary
+                      : AppColors.textMuted,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 13,
+                ),
+              ),
+            ],
           ),
         ),
       ),

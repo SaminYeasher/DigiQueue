@@ -4,10 +4,14 @@ import '../../models/queue_model.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/queue_provider.dart';
 import '../../providers/token_provider.dart';
+import '../../providers/message_provider.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/queue_card.dart';
+import '../../widgets/inbox_badge.dart';
 import '../auth/login_screen.dart';
 import 'active_ticket_screen.dart';
+import 'student_appointment_screen.dart';
+import 'student_inbox_screen.dart';
 
 class QueueListScreen extends ConsumerStatefulWidget {
   const QueueListScreen({super.key});
@@ -45,6 +49,7 @@ class _QueueListScreenState extends ConsumerState<QueueListScreen>
         queueId: queue.id,
         studentId: user.uid,
         studentName: user.displayName ?? 'Anonymous Student',
+        studentEmail: user.email ?? '',
       );
       if (mounted) {
         Navigator.of(context).push(
@@ -97,6 +102,9 @@ class _QueueListScreenState extends ConsumerState<QueueListScreen>
   Widget build(BuildContext context) {
     final queuesAsync = ref.watch(allQueuesProvider);
     final user = ref.watch(currentUserProvider);
+    final userId = user?.uid ?? '';
+    final unreadAsync = ref.watch(unreadCountProvider(userId));
+    final unreadCount = unreadAsync.value ?? 0;
 
     return Scaffold(
       body: Container(
@@ -146,6 +154,33 @@ class _QueueListScreenState extends ConsumerState<QueueListScreen>
                               ),
                             ),
                           ],
+                        ),
+                      ),
+                      // Appointments button
+                      IconButton(
+                        onPressed: () {
+                          Navigator.of(context).push(MaterialPageRoute(
+                            builder: (_) =>
+                                const StudentAppointmentScreen(),
+                          ));
+                        },
+                        icon: const Icon(Icons.calendar_month_rounded,
+                            color: AppColors.textMuted),
+                        tooltip: 'Appointments',
+                      ),
+                      // Inbox with badge
+                      InboxBadge(
+                        count: unreadCount,
+                        child: IconButton(
+                          onPressed: () {
+                            Navigator.of(context).push(MaterialPageRoute(
+                              builder: (_) =>
+                                  const StudentInboxScreen(),
+                            ));
+                          },
+                          icon: const Icon(Icons.inbox_rounded,
+                              color: AppColors.textMuted),
+                          tooltip: 'Inbox',
                         ),
                       ),
                       IconButton(

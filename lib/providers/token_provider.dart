@@ -25,6 +25,14 @@ final upNextProvider =
   return db.streamUpNext(queueId, limit: 5);
 });
 
+/// Streams the currently serving token for a queue
+final currentlyServingTokenProvider =
+    StreamProvider.family<TokenModel?, ({String queueId, int tokenNumber})>(
+        (ref, params) {
+  final db = ref.watch(databaseServiceProvider);
+  return db.streamCurrentlyServing(params.queueId, params.tokenNumber);
+});
+
 /// Computes how many people are ahead of a student in a queue.
 /// Returns null if the student is not in the queue.
 int? computePeopleAhead({

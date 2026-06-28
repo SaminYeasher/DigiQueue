@@ -8,6 +8,9 @@ class QueueModel {
   final int currentServing;
   final int lastIssuedToken;
   final String? professorId;
+  final DateTime? holdUntil;
+  final int? holdDurationMinutes;
+  final String? currentStudentStatus; // "serving", "on_hold", "accepted", "rejected"
 
   const QueueModel({
     required this.id,
@@ -17,6 +20,9 @@ class QueueModel {
     required this.currentServing,
     required this.lastIssuedToken,
     this.professorId,
+    this.holdUntil,
+    this.holdDurationMinutes,
+    this.currentStudentStatus,
   });
 
   factory QueueModel.fromFirestore(DocumentSnapshot<Map<String, dynamic>> doc) {
@@ -29,6 +35,9 @@ class QueueModel {
       currentServing: data['currentServing'] as int? ?? 0,
       lastIssuedToken: data['lastIssuedToken'] as int? ?? 0,
       professorId: data['professorId'] as String?,
+      holdUntil: (data['holdUntil'] as Timestamp?)?.toDate(),
+      holdDurationMinutes: data['holdDurationMinutes'] as int?,
+      currentStudentStatus: data['currentStudentStatus'] as String?,
     );
   }
 
@@ -40,6 +49,11 @@ class QueueModel {
       'currentServing': currentServing,
       'lastIssuedToken': lastIssuedToken,
       'professorId': professorId,
+      if (holdUntil != null) 'holdUntil': Timestamp.fromDate(holdUntil!),
+      if (holdDurationMinutes != null)
+        'holdDurationMinutes': holdDurationMinutes,
+      if (currentStudentStatus != null)
+        'currentStudentStatus': currentStudentStatus,
     };
   }
 
@@ -51,6 +65,9 @@ class QueueModel {
     int? currentServing,
     int? lastIssuedToken,
     String? professorId,
+    DateTime? holdUntil,
+    int? holdDurationMinutes,
+    String? currentStudentStatus,
   }) {
     return QueueModel(
       id: id ?? this.id,
@@ -60,11 +77,20 @@ class QueueModel {
       currentServing: currentServing ?? this.currentServing,
       lastIssuedToken: lastIssuedToken ?? this.lastIssuedToken,
       professorId: professorId ?? this.professorId,
+      holdUntil: holdUntil ?? this.holdUntil,
+      holdDurationMinutes: holdDurationMinutes ?? this.holdDurationMinutes,
+      currentStudentStatus: currentStudentStatus ?? this.currentStudentStatus,
     );
   }
 
   /// Number of students currently waiting in this queue
   int get waitingCount => lastIssuedToken - currentServing;
+
+  /// Whether the current student is on hold
+  bool get isOnHold =>
+      currentStudentStatus == 'on_hold' &&
+      holdUntil != null &&
+      holdUntil!.isAfter(DateTime.now());
 
   @override
   String toString() =>

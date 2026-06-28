@@ -4,10 +4,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/queue_provider.dart';
 import '../../providers/token_provider.dart';
+import '../../providers/message_provider.dart';
 import '../../models/queue_model.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/up_next_list.dart';
+import '../../widgets/faculty_action_buttons.dart';
+import '../../widgets/hold_timer_widget.dart';
+import '../../widgets/inbox_badge.dart';
 import '../auth/login_screen.dart';
+import 'faculty_appointments_screen.dart';
+import 'faculty_inbox_screen.dart';
 
 class QueueControlScreen extends ConsumerStatefulWidget {
   const QueueControlScreen({super.key});
@@ -116,10 +122,80 @@ class _QueueControlScreenState extends ConsumerState<QueueControlScreen>
     HapticFeedback.heavyImpact();
   }
 
-  Future<void> _skipStudent(String queueId) async {
+  Future<void> _acceptStudent(String queueId) async {
     final db = ref.read(databaseServiceProvider);
-    await db.skipStudent(queueId);
+    await db.acceptStudent(queueId);
     HapticFeedback.mediumImpact();
+  }
+
+  Future<void> _holdStudent(String queueId, int minutes) async {
+    final db = ref.read(databaseServiceProvider);
+    await db.holdStudent(queueId, minutes);
+    HapticFeedback.mediumImpact();
+  }
+
+  Future<void> _clearHold(String queueId) async {
+    final db = ref.read(databaseServiceProvider);
+    await db.clearHold(queueId);
+    HapticFeedback.lightImpact();
+  }
+
+  Future<void> _rejectStudent(String queueId) async {
+    final messageController = TextEditingController();
+    final result = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Reject Student?'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'This will reject the current student and advance to the next one. '
+              'You can optionally provide a message (e.g. for a next schedule).',
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: messageController,
+              decoration: InputDecoration(
+                hintText: 'Email for next schedule (optional)...',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              ),
+              maxLines: 3,
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(context).pop(messageController.text),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.error,
+            ),
+            child: const Text('Reject'),
+          ),
+        ],
+      ),
+    );
+
+    if (result == null) return; // User cancelled
+
+    final db = ref.read(databaseServiceProvider);
+    final user = ref.read(currentUserProvider);
+    await db.rejectStudent(
+      queueId, 
+      message: result, 
+      professorId: user?.uid,
+      professorName: user?.displayName,
+      professorEmail: user?.email,
+    );
+    HapticFeedback.heavyImpact();
   }
 
   Future<void> _resetQueue(String queueId) async {
@@ -171,6 +247,8 @@ class _QueueControlScreenState extends ConsumerState<QueueControlScreen>
     final userId = user?.uid ?? '';
 
     final queuesAsync = ref.watch(professorQueuesProvider(userId));
+    final unreadAsync = ref.watch(unreadCountProvider(userId));
+    final unreadCount = unreadAsync.value ?? 0;
 
     return Scaffold(
       body: Container(
@@ -222,6 +300,33 @@ class _QueueControlScreenState extends ConsumerState<QueueControlScreen>
                               ),
                             ),
                           ],
+                        ),
+                      ),
+                      // Appointments button
+                      IconButton(
+                        onPressed: () {
+                          Navigator.of(context).push(MaterialPageRoute(
+                            builder: (_) =>
+                                const FacultyAppointmentsScreen(),
+                          ));
+                        },
+                        icon: const Icon(Icons.calendar_month_rounded,
+                            color: AppColors.textMuted),
+                        tooltip: 'Appointments',
+                      ),
+                      // Inbox button with badge
+                      InboxBadge(
+                        count: unreadCount,
+                        child: IconButton(
+                          onPressed: () {
+                            Navigator.of(context).push(MaterialPageRoute(
+                              builder: (_) =>
+                                  const FacultyInboxScreen(),
+                            ));
+                          },
+                          icon: const Icon(Icons.inbox_rounded,
+                              color: AppColors.textMuted),
+                          tooltip: 'Inbox',
                         ),
                       ),
                       IconButton(
@@ -364,11 +469,25 @@ class _QueueControlScreenState extends ConsumerState<QueueControlScreen>
           ),
           const SizedBox(height: 16),
 
-          // ── Action Buttons ──
-          _ActionButtons(
-            queue: selectedQueue,
+          // ── Hold Timer (if on hold) ──
+          if (selectedQueue.isOnHold && selectedQueue.holdUntil != null)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 16),
+              child: HoldTimerWidget(
+                holdUntil: selectedQueue.holdUntil!,
+                onExpired: () => _clearHold(selectedQueue.id),
+                onCancelHold: () => _clearHold(selectedQueue.id),
+              ),
+            ),
+
+          // ── Faculty Action Buttons (Accept/Hold/Reject) ──
+          FacultyActionButtons(
+            hasWaiting: selectedQueue.waitingCount > 0,
+            isOnHold: selectedQueue.isOnHold,
+            onAccept: () => _acceptStudent(selectedQueue.id),
+            onReject: () => _rejectStudent(selectedQueue.id),
             onNext: () => _nextStudent(selectedQueue.id),
-            onSkip: () => _skipStudent(selectedQueue.id),
+            onHold: (minutes) => _holdStudent(selectedQueue.id, minutes),
           ),
           const SizedBox(height: 16),
 
@@ -509,6 +628,14 @@ class _LiveControlCard extends StatelessWidget {
                     fontWeight: FontWeight.w800,
                   ),
                 ),
+                // Show status badge
+                if (queue.currentStudentStatus != null &&
+                    queue.currentServing > 0)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: _StatusBadge(
+                        status: queue.currentStudentStatus!),
+                  ),
               ],
             ),
           ),
@@ -543,6 +670,66 @@ class _LiveControlCard extends StatelessWidget {
                 tooltip: 'Reset Queue',
               ),
             ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _StatusBadge extends StatelessWidget {
+  final String status;
+
+  const _StatusBadge({required this.status});
+
+  @override
+  Widget build(BuildContext context) {
+    Color color;
+    String label;
+    IconData icon;
+
+    switch (status) {
+      case 'accepted':
+        color = AppColors.success;
+        label = 'ACCEPTED';
+        icon = Icons.check_circle_rounded;
+        break;
+      case 'rejected':
+        color = AppColors.error;
+        label = 'REJECTED';
+        icon = Icons.cancel_rounded;
+        break;
+      case 'on_hold':
+        color = AppColors.warning;
+        label = 'ON HOLD';
+        icon = Icons.pause_circle_rounded;
+        break;
+      default:
+        color = AppColors.primary;
+        label = 'SERVING';
+        icon = Icons.play_circle_rounded;
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 14, color: color),
+          const SizedBox(width: 4),
+          Text(
+            label,
+            style: TextStyle(
+              color: color,
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 1,
+            ),
           ),
         ],
       ),
@@ -594,83 +781,6 @@ class _MiniStat extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-}
-
-// ── Action Buttons ─────────────────────────────────────────────────
-
-class _ActionButtons extends StatelessWidget {
-  final QueueModel queue;
-  final VoidCallback onNext;
-  final VoidCallback onSkip;
-
-  const _ActionButtons({
-    required this.queue,
-    required this.onNext,
-    required this.onSkip,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final hasWaiting = queue.waitingCount > 0;
-
-    return Row(
-      children: [
-        // Next Student — Primary action
-        Expanded(
-          flex: 2,
-          child: SizedBox(
-            height: 60,
-            child: ElevatedButton.icon(
-              onPressed: hasWaiting ? onNext : null,
-              icon: const Icon(Icons.arrow_forward_rounded, size: 24),
-              label: const Text(
-                'Next Student',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.success,
-                foregroundColor: Colors.white,
-                disabledBackgroundColor:
-                    AppColors.success.withValues(alpha: 0.2),
-                disabledForegroundColor:
-                    AppColors.success.withValues(alpha: 0.4),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(width: 12),
-        // Skip / Absent — Secondary action
-        Expanded(
-          flex: 1,
-          child: SizedBox(
-            height: 60,
-            child: OutlinedButton.icon(
-              onPressed: hasWaiting ? onSkip : null,
-              icon: const Icon(Icons.skip_next_rounded, size: 22),
-              label: const Text(
-                'Skip',
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-              ),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: AppColors.warning,
-                side: BorderSide(
-                  color: hasWaiting
-                      ? AppColors.warning
-                      : AppColors.warning.withValues(alpha: 0.2),
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-              ),
-            ),
-          ),
-        ),
-      ],
     );
   }
 }

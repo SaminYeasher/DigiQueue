@@ -60,12 +60,22 @@ class _RoleSelectScreenState extends ConsumerState<RoleSelectScreen>
     super.dispose();
   }
 
-  void _selectRole(int index) {
+  void _selectRole(int index) async {
     HapticFeedback.mediumImpact();
     setState(() => _selectedIndex = index);
 
     final role = index == 0 ? UserRole.student : UserRole.professor;
     ref.read(userRoleProvider.notifier).state = role;
+
+    // Save role to Firestore
+    final user = ref.read(currentUserProvider);
+    if (user != null) {
+      final authService = ref.read(authServiceProvider);
+      await authService.saveUserRole(
+        user.uid,
+        index == 0 ? 'student' : 'faculty',
+      );
+    }
 
     Future.delayed(const Duration(milliseconds: 400), () {
       if (!mounted) return;
@@ -154,7 +164,7 @@ class _RoleSelectScreenState extends ConsumerState<RoleSelectScreen>
                           position: _slideRightAnim,
                           child: _RoleCard(
                             icon: Icons.cast_for_education_rounded,
-                            title: 'Professor',
+                            title: 'Faculty',
                             subtitle: 'Manage your\noffice hours queue',
                             gradient: const LinearGradient(
                               begin: Alignment.topLeft,

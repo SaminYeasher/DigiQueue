@@ -49,14 +49,15 @@ class DigiQueueApp extends ConsumerWidget {
   }
 }
 
-/// Routes user based on auth state and role selection
+/// Routes user based on auth state and role selection.
+/// Now loads role from Firestore for persistence across sessions.
 class _AuthGate extends ConsumerWidget {
   const _AuthGate();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authStateProvider);
-    final role = ref.watch(userRoleProvider);
+    final sessionRole = ref.watch(userRoleProvider);
 
     return authState.when(
       loading: () => const Scaffold(
@@ -93,12 +94,41 @@ class _AuthGate extends ConsumerWidget {
         if (user == null) {
           return const LoginScreen();
         }
-        if (role == null) {
-          return const RoleSelectScreen();
+
+        // If session role is already set, use it
+        if (sessionRole != null) {
+          return sessionRole == UserRole.student
+              ? const QueueListScreen()
+              : const QueueControlScreen();
         }
-        return role == UserRole.student
-            ? const QueueListScreen()
-            : const QueueControlScreen();
+
+        // Otherwise, try loading role from Firestore
+        final profileAsync = ref.watch(currentUserProfileProvider);
+        return profileAsync.when(
+          loading: () => const Scaffold(
+            body: Center(
+              child: CircularProgressIndicator(color: AppColors.primary),
+            ),
+          ),
+          error: (_, _) => const RoleSelectScreen(),
+          data: (profile) {
+            if (profile == null || profile.role.isEmpty) {
+              return const RoleSelectScreen();
+            }
+
+            // Set session role from Firestore and navigate
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              final role = profile.isStudent
+                  ? UserRole.student
+                  : UserRole.professor;
+              ref.read(userRoleProvider.notifier).state = role;
+            });
+
+            return profile.isStudent
+                ? const QueueListScreen()
+                : const QueueControlScreen();
+          },
+        );
       },
     );
   }
