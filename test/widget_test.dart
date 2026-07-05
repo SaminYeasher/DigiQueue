@@ -1,9 +1,21 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:digital_queue/models/queue_model.dart';
 import 'package:digital_queue/models/token_model.dart';
 import 'package:digital_queue/providers/token_provider.dart';
+import 'package:digital_queue/screens/auth/login_screen.dart';
 
 void main() {
+  testWidgets('Login screen builds', (tester) async {
+    await tester.pumpWidget(
+      const ProviderScope(child: MaterialApp(home: LoginScreen())),
+    );
+
+    expect(find.text('DigiQueue'), findsOneWidget);
+    expect(find.byType(TextFormField), findsWidgets);
+  });
+
   group('QueueModel', () {
     test('waitingCount is calculated correctly', () {
       const queue = QueueModel(
@@ -68,47 +80,29 @@ void main() {
 
   group('computePeopleAhead', () {
     test('returns correct count when ahead', () {
-      expect(
-        computePeopleAhead(tokenNumber: 10, currentServing: 5),
-        4,
-      );
+      expect(computePeopleAhead(tokenNumber: 10, currentServing: 5), 4);
     });
 
     test('returns 0 when your turn', () {
-      expect(
-        computePeopleAhead(tokenNumber: 5, currentServing: 5),
-        0,
-      );
+      expect(computePeopleAhead(tokenNumber: 5, currentServing: 5), 0);
     });
 
     test('returns 0 when passed', () {
-      expect(
-        computePeopleAhead(tokenNumber: 3, currentServing: 5),
-        0,
-      );
+      expect(computePeopleAhead(tokenNumber: 3, currentServing: 5), 0);
     });
 
     test('returns null when tokenNumber is null', () {
-      expect(
-        computePeopleAhead(tokenNumber: null, currentServing: 5),
-        null,
-      );
+      expect(computePeopleAhead(tokenNumber: null, currentServing: 5), null);
     });
   });
 
   group('isStudentTurn', () {
     test('returns true when token matches serving', () {
-      expect(
-        isStudentTurn(tokenNumber: 5, currentServing: 5),
-        true,
-      );
+      expect(isStudentTurn(tokenNumber: 5, currentServing: 5), true);
     });
 
     test('returns false when not turn', () {
-      expect(
-        isStudentTurn(tokenNumber: 10, currentServing: 5),
-        false,
-      );
+      expect(isStudentTurn(tokenNumber: 10, currentServing: 5), false);
     });
   });
 }

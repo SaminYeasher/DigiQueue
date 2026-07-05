@@ -133,8 +133,13 @@ class _MessageCard extends ConsumerWidget {
           final db = ref.read(databaseServiceProvider);
           db.markMessageRead(message.id);
         }
-        // Show detail dialog
-        _showMessageDetail(context);
+        // Show appropriate dialog based on message type
+        if (message.isAppointmentRequest &&
+            message.relatedAppointmentId != null) {
+          _showAppointmentReplyDialog(context, ref);
+        } else {
+          _showMessageDetail(context);
+        }
       },
       child: Container(
         margin: const EdgeInsets.only(bottom: 8),
@@ -221,6 +226,350 @@ class _MessageCard extends ConsumerWidget {
     );
   }
 
+  /// Enhanced dialog for appointment request messages — lets faculty
+  /// reply with a proposed date/time and message, or reject.
+  void _showAppointmentReplyDialog(BuildContext context, WidgetRef ref) {
+    final replyController = TextEditingController();
+    DateTime? proposedDate;
+    TimeOfDay? proposedTime;
+    bool isSubmitting = false;
+    final dateFormat = DateFormat('MMM dd, yyyy');
+
+    showDialog(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) {
+          return AlertDialog(
+            backgroundColor: AppColors.surfaceLight,
+            title: Row(
+              children: [
+                Container(
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    color: AppColors.primary.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(Icons.calendar_month_rounded,
+                      color: AppColors.primary, size: 18),
+                ),
+                const SizedBox(width: 10),
+                const Expanded(
+                  child: Text(
+                    'Appointment Request',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                  ),
+                ),
+              ],
+            ),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Student info
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withValues(alpha: 0.06),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: AppColors.primary.withValues(alpha: 0.15),
+                      ),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            const Icon(Icons.person_rounded,
+                                size: 16, color: AppColors.textMuted),
+                            const SizedBox(width: 6),
+                            Expanded(
+                              child: Text(
+                                message.fromName,
+                                style: const TextStyle(
+                                  color: AppColors.textPrimary,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          message.body,
+                          style: const TextStyle(
+                            color: AppColors.textSecondary,
+                            fontSize: 13,
+                            height: 1.4,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Proposed date/time section
+                  const Text(
+                    'Your Proposed Time',
+                    style: TextStyle(
+                      color: AppColors.textSecondary,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      // Date picker
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () async {
+                            final date = await showDatePicker(
+                              context: context,
+                              initialDate:
+                                  DateTime.now().add(const Duration(days: 1)),
+                              firstDate: DateTime.now(),
+                              lastDate:
+                                  DateTime.now().add(const Duration(days: 90)),
+                              builder: (context, child) {
+                                return Theme(
+                                  data: Theme.of(context).copyWith(
+                                    colorScheme: const ColorScheme.dark(
+                                      primary: AppColors.primary,
+                                      surface: AppColors.surfaceLight,
+                                    ),
+                                  ),
+                                  child: child!,
+                                );
+                              },
+                            );
+                            if (date != null) {
+                              setDialogState(() => proposedDate = date);
+                            }
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 10),
+                            decoration: BoxDecoration(
+                              color: AppColors.surfaceCard,
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(
+                                color:
+                                    AppColors.textMuted.withValues(alpha: 0.3),
+                              ),
+                            ),
+                            child: Row(
+                              children: [
+                                const Icon(Icons.calendar_today_rounded,
+                                    size: 16, color: AppColors.textMuted),
+                                const SizedBox(width: 8),
+                                Text(
+                                  proposedDate != null
+                                      ? dateFormat.format(proposedDate!)
+                                      : 'Date',
+                                  style: TextStyle(
+                                    color: proposedDate != null
+                                        ? AppColors.textPrimary
+                                        : AppColors.textMuted,
+                                    fontSize: 13,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      // Time picker
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () async {
+                            final time = await showTimePicker(
+                              context: context,
+                              initialTime: TimeOfDay.now(),
+                              builder: (context, child) {
+                                return Theme(
+                                  data: Theme.of(context).copyWith(
+                                    colorScheme: const ColorScheme.dark(
+                                      primary: AppColors.primary,
+                                      surface: AppColors.surfaceLight,
+                                    ),
+                                  ),
+                                  child: child!,
+                                );
+                              },
+                            );
+                            if (time != null) {
+                              setDialogState(() => proposedTime = time);
+                            }
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 10),
+                            decoration: BoxDecoration(
+                              color: AppColors.surfaceCard,
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(
+                                color:
+                                    AppColors.textMuted.withValues(alpha: 0.3),
+                              ),
+                            ),
+                            child: Row(
+                              children: [
+                                const Icon(Icons.access_time_rounded,
+                                    size: 16, color: AppColors.textMuted),
+                                const SizedBox(width: 8),
+                                Text(
+                                  proposedTime != null
+                                      ? proposedTime!.format(context)
+                                      : 'Time',
+                                  style: TextStyle(
+                                    color: proposedTime != null
+                                        ? AppColors.textPrimary
+                                        : AppColors.textMuted,
+                                    fontSize: 13,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Reply message
+                  const Text(
+                    'Reply Message (optional)',
+                    style: TextStyle(
+                      color: AppColors.textSecondary,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  TextField(
+                    controller: replyController,
+                    maxLines: 3,
+                    maxLength: 300,
+                    decoration: InputDecoration(
+                      hintText: 'Add a message for the student...',
+                      hintStyle:
+                          const TextStyle(color: AppColors.textMuted, fontSize: 13),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 14, vertical: 10),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              // Cancel
+              TextButton(
+                onPressed: isSubmitting
+                    ? null
+                    : () => Navigator.of(context).pop(),
+                child: const Text('Cancel'),
+              ),
+              // Reject
+              OutlinedButton(
+                onPressed: isSubmitting
+                    ? null
+                    : () async {
+                        setDialogState(() => isSubmitting = true);
+                        try {
+                          final db = ref.read(databaseServiceProvider);
+                          await db.rejectAppointment(
+                            message.relatedAppointmentId!,
+                            message: replyController.text,
+                          );
+                          if (context.mounted) Navigator.of(context).pop();
+                        } catch (e) {
+                          setDialogState(() => isSubmitting = false);
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Failed: $e'),
+                                backgroundColor: AppColors.error,
+                              ),
+                            );
+                          }
+                        }
+                      },
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: AppColors.error,
+                  side: const BorderSide(color: AppColors.error),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                child: isSubmitting
+                    ? const SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Text('Reject'),
+              ),
+              // Accept
+              ElevatedButton(
+                onPressed: isSubmitting
+                    ? null
+                    : () async {
+                        setDialogState(() => isSubmitting = true);
+                        try {
+                          final db = ref.read(databaseServiceProvider);
+                          final timeStr = proposedTime?.format(context);
+                          await db.acceptAppointment(
+                            message.relatedAppointmentId!,
+                            replyMessage: replyController.text,
+                            proposedDate: proposedDate,
+                            proposedTime: timeStr,
+                          );
+                          if (context.mounted) Navigator.of(context).pop();
+                        } catch (e) {
+                          setDialogState(() => isSubmitting = false);
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Failed: $e'),
+                                backgroundColor: AppColors.error,
+                              ),
+                            );
+                          }
+                        }
+                      },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.success,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                child: isSubmitting
+                    ? const SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(
+                            strokeWidth: 2, color: Colors.white),
+                      )
+                    : const Text('Accept'),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  /// Simple read-only detail dialog for non-appointment messages
   void _showMessageDetail(BuildContext context) {
     final dateFormat = DateFormat('MMM dd, yyyy hh:mm a');
 

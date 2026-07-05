@@ -106,11 +106,80 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
           displayName: _nameController.text.trim(),
           role: _selectedRole,
         );
-        // Set the role in local state after registration
-        ref.read(userRoleProvider.notifier).state =
-            _selectedRole == 'student'
-                ? UserRole.student
-                : UserRole.professor;
+
+        // Sign out so the user can sign in manually with their new account
+        await authService.signOut();
+
+        if (mounted) {
+          // Clear all input fields
+          _emailController.clear();
+          _passwordController.clear();
+          _nameController.clear();
+
+          // Switch back to sign-in mode
+          setState(() {
+            _isRegistering = false;
+            _errorMessage = null;
+            _selectedRole = 'student';
+          });
+
+          // Show success notification
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: BoxDecoration(
+                      color: AppColors.success.withValues(alpha: 0.2),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.check_circle_rounded,
+                      color: AppColors.success,
+                      size: 20,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  const Expanded(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Account Created Successfully!',
+                          style: TextStyle(
+                            color: AppColors.textPrimary,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 14,
+                          ),
+                        ),
+                        SizedBox(height: 2),
+                        Text(
+                          'Please sign in with your new credentials.',
+                          style: TextStyle(
+                            color: AppColors.textSecondary,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              backgroundColor: AppColors.surfaceLight,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+                side: BorderSide(
+                  color: AppColors.success.withValues(alpha: 0.3),
+                ),
+              ),
+              duration: const Duration(seconds: 4),
+              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            ),
+          );
+        }
       } else {
         await authService.signInWithEmail(
           email: _emailController.text.trim(),
@@ -369,6 +438,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                           _isRegistering = !_isRegistering;
                                           _errorMessage = null;
                                         });
+                                        // Clear all fields when switching modes
+                                        _emailController.clear();
+                                        _passwordController.clear();
+                                        _nameController.clear();
                                       },
                                 child: Text(
                                   _isRegistering

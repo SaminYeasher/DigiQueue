@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 
-/// Accept / Hold / Reject action buttons for faculty queue control
+/// Accept / Hold / Reject action buttons for faculty queue control.
+///
+/// Button enable/disable logic enforces a realistic workflow:
+///   Next Student → serving → Accept (done) → Next Student
+///                           → Reject (auto-advances)
+///                           → Hold → Cancel Hold → continue serving
 class FacultyActionButtons extends StatelessWidget {
   final bool hasWaiting;
   final bool isOnHold;
+  final String? currentStudentStatus;
   final VoidCallback onAccept;
   final VoidCallback onReject;
   final VoidCallback onNext;
@@ -14,6 +20,7 @@ class FacultyActionButtons extends StatelessWidget {
     super.key,
     required this.hasWaiting,
     required this.isOnHold,
+    this.currentStudentStatus,
     required this.onAccept,
     required this.onReject,
     required this.onNext,
@@ -22,6 +29,27 @@ class FacultyActionButtons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Determine button states based on realistic queue workflow
+    final isServing = currentStudentStatus == 'serving';
+    final isAccepted = currentStudentStatus == 'accepted';
+    final isHolding = isOnHold;
+
+    // Accept: only when actively serving (not on hold, not already accepted)
+    final canAccept = hasWaiting && isServing && !isHolding;
+
+    // Reject: when serving or on hold (can reject anytime during active service)
+    final canReject = hasWaiting && (isServing || isHolding);
+
+    // Hold: at any point of time in queue (as long as it's not already on hold)
+    final canHold = !isHolding;
+
+    // Next Student: when a student has been accepted (done, move on)
+    // OR when no student is being served yet (first call / after reset)
+    final canNext = hasWaiting &&
+        (isAccepted ||
+            currentStudentStatus == null ||
+            currentStudentStatus == 'rejected');
+
     return Column(
       children: [
         // Primary action row: Accept / Hold / Reject
@@ -32,7 +60,7 @@ class FacultyActionButtons extends StatelessWidget {
               child: SizedBox(
                 height: 56,
                 child: ElevatedButton.icon(
-                  onPressed: hasWaiting && !isOnHold ? onAccept : null,
+                  onPressed: canAccept ? onAccept : null,
                   icon: const Icon(Icons.check_circle_rounded, size: 22),
                   label: const Text(
                     'Accept',
@@ -58,7 +86,7 @@ class FacultyActionButtons extends StatelessWidget {
             SizedBox(
               height: 56,
               child: PopupMenuButton<int>(
-                enabled: hasWaiting && !isOnHold,
+                enabled: canHold,
                 onSelected: onHold,
                 offset: const Offset(0, -200),
                 shape: RoundedRectangleBorder(
@@ -74,7 +102,7 @@ class FacultyActionButtons extends StatelessWidget {
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   decoration: BoxDecoration(
-                    color: hasWaiting && !isOnHold
+                    color: canHold
                         ? AppColors.warning
                         : AppColors.warning.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(14),
@@ -85,7 +113,7 @@ class FacultyActionButtons extends StatelessWidget {
                       Icon(
                         Icons.pause_circle_rounded,
                         size: 22,
-                        color: hasWaiting && !isOnHold
+                        color: canHold
                             ? Colors.white
                             : AppColors.warning.withValues(alpha: 0.4),
                       ),
@@ -95,7 +123,7 @@ class FacultyActionButtons extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w700,
-                          color: hasWaiting && !isOnHold
+                          color: canHold
                               ? Colors.white
                               : AppColors.warning.withValues(alpha: 0.4),
                         ),
@@ -103,7 +131,7 @@ class FacultyActionButtons extends StatelessWidget {
                       const SizedBox(width: 2),
                       Icon(
                         Icons.arrow_drop_down,
-                        color: hasWaiting && !isOnHold
+                        color: canHold
                             ? Colors.white
                             : AppColors.warning.withValues(alpha: 0.4),
                       ),
@@ -118,7 +146,7 @@ class FacultyActionButtons extends StatelessWidget {
               child: SizedBox(
                 height: 56,
                 child: ElevatedButton.icon(
-                  onPressed: hasWaiting ? onReject : null,
+                  onPressed: canReject ? onReject : null,
                   icon: const Icon(Icons.cancel_rounded, size: 22),
                   label: const Text(
                     'Reject',
@@ -147,7 +175,7 @@ class FacultyActionButtons extends StatelessWidget {
           width: double.infinity,
           height: 52,
           child: OutlinedButton.icon(
-            onPressed: hasWaiting ? onNext : null,
+            onPressed: canNext ? onNext : null,
             icon: const Icon(Icons.arrow_forward_rounded, size: 22),
             label: const Text(
               'Next Student',
@@ -156,7 +184,7 @@ class FacultyActionButtons extends StatelessWidget {
             style: OutlinedButton.styleFrom(
               foregroundColor: AppColors.primary,
               side: BorderSide(
-                color: hasWaiting
+                color: canNext
                     ? AppColors.primary
                     : AppColors.primary.withValues(alpha: 0.2),
               ),

@@ -14,6 +14,7 @@ import '../../widgets/inbox_badge.dart';
 import '../auth/login_screen.dart';
 import 'faculty_appointments_screen.dart';
 import 'faculty_inbox_screen.dart';
+import 'queue_history_screen.dart';
 
 class QueueControlScreen extends ConsumerStatefulWidget {
   const QueueControlScreen({super.key});
@@ -227,6 +228,41 @@ class _QueueControlScreenState extends ConsumerState<QueueControlScreen>
     final db = ref.read(databaseServiceProvider);
     await db.resetQueue(queueId);
     HapticFeedback.heavyImpact();
+  }
+
+  Future<void> _deleteQueue(String queueId) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Queue?'),
+        content: const Text(
+          'Are you sure you want to delete this queue entirely? '
+          'All history and tokens will be permanently removed.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.error,
+            ),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true) return;
+    final db = ref.read(databaseServiceProvider);
+    await db.deleteQueue(queueId);
+    HapticFeedback.heavyImpact();
+    // After deletion, clear selection so the dashboard will default to the first available queue
+    if (mounted && _selectedQueueId == queueId) {
+      setState(() => _selectedQueueId = null);
+    }
   }
 
   Future<void> _signOut() async {
@@ -466,6 +502,16 @@ class _QueueControlScreenState extends ConsumerState<QueueControlScreen>
             onToggle: () =>
                 _toggleLive(selectedQueue.id, selectedQueue.isLive),
             onReset: () => _resetQueue(selectedQueue.id),
+            onDelete: () => _deleteQueue(selectedQueue.id),
+            onViewHistory: () => Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => QueueHistoryScreen(
+                  queueId: selectedQueue.id,
+                  professorName: selectedQueue.professorName,
+                  roomNumber: selectedQueue.roomNumber,
+                ),
+              ),
+            ),
           ),
           const SizedBox(height: 16),
 
@@ -484,6 +530,7 @@ class _QueueControlScreenState extends ConsumerState<QueueControlScreen>
           FacultyActionButtons(
             hasWaiting: selectedQueue.waitingCount > 0,
             isOnHold: selectedQueue.isOnHold,
+            currentStudentStatus: selectedQueue.currentStudentStatus,
             onAccept: () => _acceptStudent(selectedQueue.id),
             onReject: () => _rejectStudent(selectedQueue.id),
             onNext: () => _nextStudent(selectedQueue.id),
@@ -524,11 +571,15 @@ class _LiveControlCard extends StatelessWidget {
   final QueueModel queue;
   final VoidCallback onToggle;
   final VoidCallback onReset;
+  final VoidCallback onDelete;
+  final VoidCallback onViewHistory;
 
   const _LiveControlCard({
     required this.queue,
     required this.onToggle,
     required this.onReset,
+    required this.onDelete,
+    required this.onViewHistory,
   });
 
   @override
@@ -668,6 +719,20 @@ class _LiveControlCard extends StatelessWidget {
                 icon: const Icon(Icons.refresh_rounded),
                 color: AppColors.textMuted,
                 tooltip: 'Reset Queue',
+              ),
+              // History button
+              IconButton(
+                onPressed: onViewHistory,
+                icon: const Icon(Icons.history_rounded),
+                color: AppColors.primary,
+                tooltip: 'Queue History',
+              ),
+              // Delete button
+              IconButton(
+                onPressed: onDelete,
+                icon: const Icon(Icons.delete_outline_rounded),
+                color: AppColors.error.withValues(alpha: 0.8),
+                tooltip: 'Delete Queue',
               ),
             ],
           ),

@@ -292,15 +292,29 @@ class _ActiveTicketScreenState extends ConsumerState<ActiveTicketScreen>
     }
 
     final currentServing = queue?.currentServing ?? 0;
-    final peopleAhead = computePeopleAhead(
-      tokenNumber: token.tokenNumber,
-      currentServing: currentServing,
-    ) ?? 0;
+    
+    // Whether it's exactly this student's turn and they are actively being served
+    final isYourTurn = token.tokenNumber == currentServing &&
+        (queue?.currentStudentStatus == 'serving' ||
+            queue?.currentStudentStatus == 'on_hold');
+
+    // Calculate people ahead
+    // If someone is actively being served (serving/on_hold), they count as 1 person ahead if token > currentServing.
+    // If the queue is finished or the current person is accepted/rejected, no one is actively being served,
+    // so people ahead is just tokenNumber - currentServing - 1.
+    int peopleAhead = token.tokenNumber - currentServing;
+    if (queue?.currentStudentStatus == 'accepted' || 
+        queue?.currentStudentStatus == 'rejected' || 
+        queue?.currentStudentStatus == null) {
+      peopleAhead -= 1;
+    }
+    if (peopleAhead < 0) peopleAhead = 0;
 
     return TicketDisplay(
       tokenNumber: token.tokenNumber,
       currentServing: currentServing,
       peopleAhead: peopleAhead,
+      isYourTurn: isYourTurn,
     );
   }
 }

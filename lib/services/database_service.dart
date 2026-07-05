@@ -457,6 +457,21 @@ class DatabaseService {
     });
   }
 
+  /// Stream all tokens for a specific queue (history/list)
+  Stream<List<TokenModel>> streamAllTokensForQueue(String queueId) {
+    return _tokensRef
+        .where('queueId', isEqualTo: queueId)
+        .snapshots()
+        .map((snapshot) {
+      final tokens = snapshot.docs
+          .map((doc) => TokenModel.fromFirestore(doc))
+          .toList();
+      // Sort locally to avoid needing a composite index in Firestore
+      tokens.sort((a, b) => b.tokenNumber.compareTo(a.tokenNumber));
+      return tokens;
+    });
+  }
+
   /// Stream queues owned by a specific professor
   Stream<List<QueueModel>> streamProfessorQueues(String professorId) {
     return _queuesRef
@@ -520,16 +535,42 @@ class DatabaseService {
     return docRef.id;
   }
 
-  /// Accept an appointment
-  Future<void> acceptAppointment(String appointmentId) async {
+  /// Accept an appointment (optionally with proposed date/time and reply)
+  Future<void> acceptAppointment(
+    String appointmentId, {
+    String? replyMessage,
+    DateTime? proposedDate,
+    String? proposedTime,
+  }) async {
     final doc = await _appointmentsRef.doc(appointmentId).get();
     if (!doc.exists) return;
     final appointment = AppointmentModel.fromFirestore(doc);
 
-    await _appointmentsRef.doc(appointmentId).update({
+    final updateData = <String, dynamic>{
       'status': 'accepted',
       'updatedAt': Timestamp.now(),
-    });
+    };
+    // Store proposed date/time if faculty provided one
+    if (proposedDate != null) {
+      updateData['rescheduledDate'] = Timestamp.fromDate(proposedDate);
+    }
+    if (proposedTime != null) {
+      updateData['rescheduledTime'] = proposedTime;
+    }
+
+    await _appointmentsRef.doc(appointmentId).update(updateData);
+
+    // Build notification body
+    final confirmedDate = proposedDate ?? appointment.requestedDate;
+    final confirmedTime = proposedTime ?? appointment.requestedTime;
+    String bodyText =
+        '${appointment.facultyName} has accepted your appointment request.\n\n'
+        'Confirmed Date: ${confirmedDate.toString().split(' ')[0]}\n'
+        'Confirmed Time: $confirmedTime\n'
+        'Subject: ${appointment.subject}';
+    if (replyMessage != null && replyMessage.trim().isNotEmpty) {
+      bodyText += '\n\nMessage from ${appointment.facultyName}:\n$replyMessage';
+    }
 
     // Notify student
     await sendMessage(
@@ -540,10 +581,7 @@ class DatabaseService {
       toName: appointment.studentName,
       toEmail: appointment.studentEmail,
       subject: 'Appointment Accepted: ${appointment.subject}',
-      body: '${appointment.facultyName} has accepted your appointment request.\n\n'
-          'Date: ${appointment.requestedDate.toString().split(' ')[0]}\n'
-          'Time: ${appointment.requestedTime}\n'
-          'Subject: ${appointment.subject}',
+      body: bodyText,
       type: 'appointment_response',
       relatedAppointmentId: appointmentId,
     );

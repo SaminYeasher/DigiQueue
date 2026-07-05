@@ -133,64 +133,6 @@ class _RequestAppointmentTabState
   UserModel? _selectedFaculty;
   bool _isSubmitting = false;
 
-  final List<UserModel> _facultyList = [
-    UserModel(uid: 'fac_IAZ', email: 'pending@edu.bd', displayName: 'Dr. Ishtiaque Aziz Zahed (Dr. IAZ)', role: 'faculty', createdAt: DateTime.now()),
-    UserModel(uid: 'fac_MK', email: 'pending@edu.bd', displayName: 'Dr. K.M. Mohibul Kabir (Dr. MK)', role: 'faculty', createdAt: DateTime.now()),
-    UserModel(uid: 'fac_GMD', email: 'pending@edu.bd', displayName: 'Mr. Golam Moktader Daiyan (GMD)', role: 'faculty', createdAt: DateTime.now()),
-    UserModel(uid: 'fac_TA', email: 'pending@edu.bd', displayName: 'Mr. Mohammad Toufiq Ahmed (TA)', role: 'faculty', createdAt: DateTime.now()),
-    UserModel(uid: 'fac_MSA', email: 'pending@edu.bd', displayName: 'Dr. Md. Shahidul Alam (Dr. MSA)', role: 'faculty', createdAt: DateTime.now()),
-    UserModel(uid: 'fac_SAF', email: 'pending@edu.bd', displayName: 'Ms. Saraf Anika (SAF)', role: 'faculty', createdAt: DateTime.now()),
-    UserModel(uid: 'fac_TK', email: 'pending@edu.bd', displayName: 'Ms. Tania Khadem (TK)', role: 'faculty', createdAt: DateTime.now()),
-    UserModel(uid: 'fac_BB', email: 'pending@edu.bd', displayName: 'Mr. S.M. Baque Billah (BB)', role: 'faculty', createdAt: DateTime.now()),
-    UserModel(uid: 'fac_SHA', email: 'pending@edu.bd', displayName: 'Ms. Sharmin Akter (SHA)', role: 'faculty', createdAt: DateTime.now()),
-    UserModel(uid: 'fac_MC', email: 'pending@edu.bd', displayName: 'Mr. Mashky Chowdhury Surja (MC)', role: 'faculty', createdAt: DateTime.now()),
-    UserModel(uid: 'fac_KA', email: 'pending@edu.bd', displayName: 'Mr. Kazi Muhammad Asif Ashrafi (KA)', role: 'faculty', createdAt: DateTime.now()),
-    UserModel(uid: 'fac_AAA', email: 'pending@edu.bd', displayName: 'Mr. Ahamed- Al- Arifin (AAA)', role: 'faculty', createdAt: DateTime.now()),
-    UserModel(uid: 'fac_JM', email: 'pending@edu.bd', displayName: 'Mr. Joydwip Mohajon (JM)', role: 'faculty', createdAt: DateTime.now()),
-    UserModel(uid: 'fac_SAH', email: 'pending@edu.bd', displayName: 'Mr. Md. Sabbir Al Ahsan (SAH)', role: 'faculty', createdAt: DateTime.now()),
-    UserModel(uid: 'fac_PRM', email: 'pending@edu.bd', displayName: 'Ms. Parna Mutsuddy (PRM)', role: 'faculty', createdAt: DateTime.now()),
-    UserModel(uid: 'fac_TAZ', email: 'pending@edu.bd', displayName: 'Mr. Tanvir Azhar (TAZ)', role: 'faculty', createdAt: DateTime.now()),
-    UserModel(uid: 'fac_JHJ', email: 'pending@edu.bd', displayName: 'Mr. Md. Jahidul Hasan Jahid (JHJ)', role: 'faculty', createdAt: DateTime.now()),
-    UserModel(uid: 'fac_JUD', email: 'pending@edu.bd', displayName: 'Mr. Md. Jamil Uddin (JUD)', role: 'faculty', createdAt: DateTime.now()),
-    UserModel(uid: 'fac_ARS', email: 'pending@edu.bd', displayName: 'Ms. Arshiana Shamir (ARS)', role: 'faculty', createdAt: DateTime.now()),
-    UserModel(uid: 'fac_SMI', email: 'pending@edu.bd', displayName: 'Mr. Md. Siratul Mustakim Ifty (SMI)', role: 'faculty', createdAt: DateTime.now()),
-    UserModel(uid: 'fac_MRA', email: 'pending@edu.bd', displayName: 'Mr. Mohammed Morshed Rana (MRA)', role: 'faculty', createdAt: DateTime.now()),
-    UserModel(uid: 'fac_SAB', email: 'pending@edu.bd', displayName: 'Mr. Saklain Abdullah (SAB)', role: 'faculty', createdAt: DateTime.now()),
-    UserModel(uid: 'fac_SOA', email: 'pending@edu.bd', displayName: 'Mr. Sourav Adhikary (SOA)', role: 'faculty', createdAt: DateTime.now()),
-    UserModel(uid: 'fac_SKD', email: 'pending@edu.bd', displayName: 'Mr. Sanath Kumar Das (SKD)', role: 'faculty', createdAt: DateTime.now()),
-    UserModel(uid: 'fac_SAK', email: 'pending@edu.bd', displayName: 'Ms. Shahin Akter (SAK)', role: 'faculty', createdAt: DateTime.now()),
-    UserModel(uid: 'fac_TAS', email: 'pending@edu.bd', displayName: 'Ms. Tahmina Akter Sumi (TAS)', role: 'faculty', createdAt: DateTime.now()),
-    UserModel(uid: 'fac_TJ', email: 'pending@edu.bd', displayName: 'Ms. Tasnimatul Jannah (TJ)', role: 'faculty', createdAt: DateTime.now()),
-    UserModel(uid: 'fac_UDD', email: 'pending@edu.bd', displayName: 'Mr. Udoy Das (UDD)', role: 'faculty', createdAt: DateTime.now()),
-    UserModel(uid: 'fac_RHN', email: 'pending@edu.bd', displayName: 'Mr. Riad Hossain (RHN)', role: 'faculty', createdAt: DateTime.now()),
-    UserModel(uid: 'fac_MSR', email: 'pending@edu.bd', displayName: 'Mr. Md. Sajeed-Ur-Rahman (MSR)', role: 'faculty', createdAt: DateTime.now()),
-    UserModel(uid: 'fac_PH', email: 'pending@edu.bd', displayName: 'Ms. Promila Hoque (PH)', role: 'faculty', createdAt: DateTime.now()),
-    UserModel(uid: 'fac_ABR', email: 'pending@edu.bd', displayName: 'Mr. Angkur Barua (ABR)', role: 'faculty', createdAt: DateTime.now()),
-    UserModel(uid: 'fac_ARC', email: 'pending@edu.bd', displayName: 'Ms. Arpita Chakraborty (ARC)', role: 'faculty', createdAt: DateTime.now()),
-    UserModel(uid: 'fac_ABH', email: 'pending@edu.bd', displayName: 'Mr. Abid Hossain (ABH)', role: 'faculty', createdAt: DateTime.now()),
-    UserModel(uid: 'fac_JNM', email: 'pending@edu.bd', displayName: 'Ms. Jannatul Naima Deehan (JNM)', role: 'faculty', createdAt: DateTime.now()),
-    UserModel(uid: 'fac_MHN', email: 'pending@edu.bd', displayName: 'Mr.Mehedi Hasan Jony (MHN)', role: 'faculty', createdAt: DateTime.now()),
-    UserModel(uid: 'fac_ANC', email: 'pending@edu.bd', displayName: 'Mr. Antu Chowdhury (ANC)', role: 'faculty', createdAt: DateTime.now()),
-    UserModel(uid: 'fac_ANJ', email: 'pending@edu.bd', displayName: 'Mr. Asif Noor Jamee (ANJ)', role: 'faculty', createdAt: DateTime.now()),
-    UserModel(uid: 'fac_FT', email: 'pending@edu.bd', displayName: 'Ms. Fareen Tasneem (FT)', role: 'faculty', createdAt: DateTime.now()),
-    UserModel(uid: 'fac_SSD', email: 'pending@edu.bd', displayName: 'Mr. Saleh Sakib Ahmed (SSD)', role: 'faculty', createdAt: DateTime.now()),
-    UserModel(uid: 'fac_LAM', email: 'pending@edu.bd', displayName: 'Ms. Lamiya Anjum Mahi (LAM)', role: 'faculty', createdAt: DateTime.now()),
-    UserModel(uid: 'fac_IMTIAZ', email: 'pending@edu.bd', displayName: 'Mr. Imtiaz Akber Chowdhury (IMTIAZ)', role: 'faculty', createdAt: DateTime.now()),
-    UserModel(uid: 'fac_RUMKY', email: 'pending@edu.bd', displayName: 'Ms. Tajrin Jahan Rumky (RUMKY)', role: 'faculty', createdAt: DateTime.now()),
-    UserModel(uid: 'fac_JUNAYET', email: 'pending@edu.bd', displayName: 'Mr. A. S. M. Junayet Hossain (JUNAYET)', role: 'faculty', createdAt: DateTime.now()),
-    UserModel(uid: 'fac_SHAMIM', email: 'pending@edu.bd', displayName: 'Mr. Mostaquimul Abrar Shamim (SHAMIM)', role: 'faculty', createdAt: DateTime.now()),
-    UserModel(uid: 'fac_YEASIN', email: 'pending@edu.bd', displayName: 'Mr. Md. Yeasin (YEASIN)', role: 'faculty', createdAt: DateTime.now()),
-    UserModel(uid: 'fac_ASHRAF', email: 'pending@edu.bd', displayName: 'Mr. Ashrafur Rahman Chowdhury (ASHRAF)', role: 'faculty', createdAt: DateTime.now()),
-    UserModel(uid: 'fac_MONALISA', email: 'pending@edu.bd', displayName: 'Ms. Monalisa Tripura (MONALISA)', role: 'faculty', createdAt: DateTime.now()),
-    UserModel(uid: 'fac_FARJANA', email: 'pending@edu.bd', displayName: 'Ms. Farjana Alam Tofa (FARJANA)', role: 'faculty', createdAt: DateTime.now()),
-    UserModel(uid: 'fac_NUSRAT', email: 'pending@edu.bd', displayName: 'Ms. Nusrat Jahan (NUSRAT)', role: 'faculty', createdAt: DateTime.now()),
-    UserModel(uid: 'fac_ANB', email: 'pending@edu.bd', displayName: 'Ms. Anika Bushra (ANB)', role: 'faculty', createdAt: DateTime.now()),
-    UserModel(uid: 'fac_TRINA', email: 'pending@edu.bd', displayName: 'Ms. Trina Chakroborty (TRINA)', role: 'faculty', createdAt: DateTime.now()),
-    UserModel(uid: 'fac_SWAPNIL', email: 'pending@edu.bd', displayName: 'Ms. Swapnil Chowdhury (SWAPNIL)', role: 'faculty', createdAt: DateTime.now()),
-    UserModel(uid: 'fac_TULY', email: 'pending@edu.bd', displayName: 'Ms. Mst Tuly Khatun (TULY)', role: 'faculty', createdAt: DateTime.now()),
-    UserModel(uid: 'fac_SAMIHA', email: 'pending@edu.bd', displayName: 'Ms. Ishraq Samiha (SAMIHA)', role: 'faculty', createdAt: DateTime.now()),
-  ];
-
   @override
   void dispose() {
     _subjectController.dispose();
@@ -328,36 +270,84 @@ class _RequestAppointmentTabState
               ),
             ),
             const SizedBox(height: 8),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              decoration: BoxDecoration(
-                color: AppColors.surfaceCard,
-                borderRadius: BorderRadius.circular(14),
-                border: Border.all(
-                  color: AppColors.textMuted.withValues(alpha: 0.3),
+            ref.watch(facultyUsersProvider).when(
+              loading: () => Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                decoration: BoxDecoration(
+                  color: AppColors.surfaceCard,
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(
+                    color: AppColors.textMuted.withValues(alpha: 0.3),
+                  ),
+                ),
+                child: const Row(
+                  children: [
+                    SizedBox(
+                      width: 18, height: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                    SizedBox(width: 12),
+                    Text('Loading faculty...', style: TextStyle(color: AppColors.textMuted)),
+                  ],
                 ),
               ),
-              child: DropdownButton<UserModel>(
-                value: _selectedFaculty,
-                isExpanded: true,
-                dropdownColor: AppColors.surfaceLight,
-                underline: const SizedBox(),
-                hint: const Text('Choose faculty member',
-                    style: TextStyle(color: AppColors.textMuted)),
-                items: _facultyList
-                    .map((f) => DropdownMenuItem(
-                          value: f,
-                          child: Text(
-                            f.displayName,
-                            style: const TextStyle(
-                                color: AppColors.textPrimary,
-                                fontSize: 14),
-                          ),
-                        ))
-                    .toList(),
-                onChanged: (v) =>
-                    setState(() => _selectedFaculty = v),
+              error: (e, _) => Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                decoration: BoxDecoration(
+                  color: AppColors.surfaceCard,
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(
+                    color: AppColors.error.withValues(alpha: 0.3),
+                  ),
+                ),
+                child: Text('Failed to load faculty: $e',
+                    style: const TextStyle(color: AppColors.error, fontSize: 13)),
               ),
+              data: (facultyList) {
+                // Reset selection if the selected faculty is no longer in the list
+                if (_selectedFaculty != null &&
+                    !facultyList.any((f) => f.uid == _selectedFaculty!.uid)) {
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    if (mounted) setState(() => _selectedFaculty = null);
+                  });
+                }
+                return Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  decoration: BoxDecoration(
+                    color: AppColors.surfaceCard,
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(
+                      color: AppColors.textMuted.withValues(alpha: 0.3),
+                    ),
+                  ),
+                  child: DropdownButton<UserModel>(
+                    value: _selectedFaculty,
+                    isExpanded: true,
+                    dropdownColor: AppColors.surfaceLight,
+                    underline: const SizedBox(),
+                    hint: Text(
+                      facultyList.isEmpty
+                          ? 'No faculty registered yet'
+                          : 'Choose faculty member',
+                      style: const TextStyle(color: AppColors.textMuted),
+                    ),
+                    items: facultyList
+                        .map((f) => DropdownMenuItem(
+                              value: f,
+                              child: Text(
+                                f.displayName,
+                                style: const TextStyle(
+                                    color: AppColors.textPrimary,
+                                    fontSize: 14),
+                              ),
+                            ))
+                        .toList(),
+                    onChanged: facultyList.isEmpty
+                        ? null
+                        : (v) => setState(() => _selectedFaculty = v),
+                  ),
+                );
+              },
             ),
             const SizedBox(height: 20),
 

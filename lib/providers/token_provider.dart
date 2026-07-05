@@ -33,6 +33,13 @@ final currentlyServingTokenProvider =
   return db.streamCurrentlyServing(params.queueId, params.tokenNumber);
 });
 
+/// Streams all tokens for a queue (history view)
+final queueHistoryProvider =
+    StreamProvider.family<List<TokenModel>, String>((ref, queueId) {
+  final db = ref.watch(databaseServiceProvider);
+  return db.streamAllTokensForQueue(queueId);
+});
+
 /// Computes how many people are ahead of a student in a queue.
 /// Returns null if the student is not in the queue.
 int? computePeopleAhead({

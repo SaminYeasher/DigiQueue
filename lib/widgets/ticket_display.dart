@@ -7,12 +7,14 @@ class TicketDisplay extends StatefulWidget {
   final int tokenNumber;
   final int currentServing;
   final int peopleAhead;
+  final bool isYourTurn;
 
   const TicketDisplay({
     super.key,
     required this.tokenNumber,
     required this.currentServing,
     required this.peopleAhead,
+    required this.isYourTurn,
   });
 
   @override
@@ -80,7 +82,7 @@ class _TicketDisplayState extends State<TicketDisplay>
     super.dispose();
   }
 
-  bool get _isYourTurn => widget.peopleAhead == 0;
+  bool get _isYourTurn => widget.isYourTurn;
   bool get _isAlmostTurn => widget.peopleAhead <= 2 && !_isYourTurn;
 
   Color get _statusColor {
