@@ -662,22 +662,28 @@ class DatabaseService {
   Stream<List<AppointmentModel>> streamFacultyAppointments(String facultyId) {
     return _appointmentsRef
         .where('facultyId', isEqualTo: facultyId)
-        .orderBy('createdAt', descending: true)
         .snapshots()
-        .map((snapshot) => snapshot.docs
-            .map((doc) => AppointmentModel.fromFirestore(doc))
-            .toList());
+        .map((snapshot) {
+      final list = snapshot.docs
+          .map((doc) => AppointmentModel.fromFirestore(doc))
+          .toList();
+      list.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+      return list;
+    });
   }
 
   /// Stream student appointments
   Stream<List<AppointmentModel>> streamStudentAppointments(String studentId) {
     return _appointmentsRef
         .where('studentId', isEqualTo: studentId)
-        .orderBy('createdAt', descending: true)
         .snapshots()
-        .map((snapshot) => snapshot.docs
-            .map((doc) => AppointmentModel.fromFirestore(doc))
-            .toList());
+        .map((snapshot) {
+      final list = snapshot.docs
+          .map((doc) => AppointmentModel.fromFirestore(doc))
+          .toList();
+      list.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+      return list;
+    });
   }
 
   // ─── Message / Inbox Operations ─────────────────────────────────

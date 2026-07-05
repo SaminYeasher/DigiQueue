@@ -483,6 +483,15 @@ class _MessageCard extends ConsumerWidget {
                 onPressed: isSubmitting
                     ? null
                     : () async {
+                        if (message.relatedAppointmentId == null) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Error: Appointment ID is missing for this request.'),
+                              backgroundColor: AppColors.error,
+                            ),
+                          );
+                          return;
+                        }
                         setDialogState(() => isSubmitting = true);
                         try {
                           final db = ref.read(databaseServiceProvider);
@@ -523,6 +532,15 @@ class _MessageCard extends ConsumerWidget {
                 onPressed: isSubmitting
                     ? null
                     : () async {
+                        if (message.relatedAppointmentId == null) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Error: Appointment ID is missing for this request.'),
+                              backgroundColor: AppColors.error,
+                            ),
+                          );
+                          return;
+                        }
                         setDialogState(() => isSubmitting = true);
                         try {
                           final db = ref.read(databaseServiceProvider);

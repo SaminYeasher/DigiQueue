@@ -438,8 +438,7 @@ class _AppointmentCard extends ConsumerWidget {
 
     if (selectedTime == null || !context.mounted) return;
 
-    final timeStr =
-        '${selectedTime.hour.toString().padLeft(2, '0')}:${selectedTime.minute.toString().padLeft(2, '0')}';
+    final timeStr = selectedTime.format(context);
 
     final db = ref.read(databaseServiceProvider);
     await db.rescheduleAppointment(

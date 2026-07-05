@@ -203,8 +203,7 @@ class _RequestAppointmentTabState
       final user = ref.read(currentUserProvider);
       if (user == null) return;
 
-      final timeStr =
-          '${_selectedTime!.hour.toString().padLeft(2, '0')}:${_selectedTime!.minute.toString().padLeft(2, '0')}';
+      final timeStr = _selectedTime!.format(context);
 
       final db = ref.read(databaseServiceProvider);
       await db.createAppointment(
@@ -411,7 +410,7 @@ class _RequestAppointmentTabState
                           const SizedBox(width: 10),
                           Text(
                             _selectedTime != null
-                                ? '${_selectedTime!.hour.toString().padLeft(2, '0')}:${_selectedTime!.minute.toString().padLeft(2, '0')}'
+                                ? _selectedTime!.format(context)
                                 : 'Select Time',
                             style: TextStyle(
                               color: _selectedTime != null

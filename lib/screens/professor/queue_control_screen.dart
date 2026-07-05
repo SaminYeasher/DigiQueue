@@ -269,12 +269,6 @@ class _QueueControlScreenState extends ConsumerState<QueueControlScreen>
     final authService = ref.read(authServiceProvider);
     await authService.signOut();
     ref.read(userRoleProvider.notifier).state = null;
-    if (mounted) {
-      Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (_) => const LoginScreen()),
-        (route) => false,
-      );
-    }
   }
 
   @override
