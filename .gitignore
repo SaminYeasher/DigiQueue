@@ -46,3 +46,19 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Security / Sensitive Files
+*.jks
+*.keystore
+key.properties
+.env
+.env.*
+*.pem
+*.p12
+
+# Firebase & Google Cloud Configurations
+google-services.json
+GoogleService-Info.plist
+firebase_options.dart
+firebase.json
+.firebaserc
