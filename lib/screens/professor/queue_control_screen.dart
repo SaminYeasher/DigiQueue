@@ -266,16 +266,6 @@ class _QueueControlScreenState extends ConsumerState<QueueControlScreen>
   }
 
   Future<void> _signOut() async {
-    // Invalidate all Firestore stream providers BEFORE signing out.
-    // This tears down active listeners while the auth token is still valid,
-    // preventing permission-denied errors on subsequent logins.
-    ref.invalidate(professorQueuesProvider);
-    ref.invalidate(currentUserProfileProvider);
-    ref.invalidate(unreadCountProvider);
-    ref.invalidate(upNextProvider);
-    ref.invalidate(currentlyServingTokenProvider);
-    ref.invalidate(queueHistoryProvider);
-
     final authService = ref.read(authServiceProvider);
     ref.read(userRoleProvider.notifier).state = null;
     await authService.signOut();

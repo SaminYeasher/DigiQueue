@@ -8,21 +8,21 @@ final databaseServiceProvider = Provider<DatabaseService>((ref) {
 });
 
 /// Streams all queues from Firestore
-final allQueuesProvider = StreamProvider<List<QueueModel>>((ref) {
+final allQueuesProvider = StreamProvider.autoDispose<List<QueueModel>>((ref) {
   final db = ref.watch(databaseServiceProvider);
   return db.streamAllQueues();
 });
 
 /// Streams a single queue by ID (family provider)
 final queueProvider =
-    StreamProvider.family<QueueModel?, String>((ref, queueId) {
+    StreamProvider.autoDispose.family<QueueModel?, String>((ref, queueId) {
   final db = ref.watch(databaseServiceProvider);
   return db.streamQueue(queueId);
 });
 
 /// Streams queues owned by a specific professor
 final professorQueuesProvider =
-    StreamProvider.family<List<QueueModel>, String>((ref, professorId) {
+    StreamProvider.autoDispose.family<List<QueueModel>, String>((ref, professorId) {
   final db = ref.watch(databaseServiceProvider);
   return db.streamProfessorQueues(professorId);
 });

@@ -92,13 +92,6 @@ class _AuthGate extends ConsumerWidget {
       ),
       data: (user) {
         if (user == null) {
-          // User logged out — invalidate all user-specific providers
-          // so that stale Firestore listeners don't persist into the
-          // next session and cause permission-denied errors.
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            ref.invalidate(currentUserProfileProvider);
-            ref.invalidate(userRoleProvider);
-          });
           return const LoginScreen();
         }
 

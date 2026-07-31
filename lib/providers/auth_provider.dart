@@ -29,13 +29,13 @@ final userRoleProvider = StateProvider<UserRole?>((ref) {
 
 /// Streams user profile from Firestore (persistent role)
 final userProfileProvider =
-    StreamProvider.family<UserModel?, String>((ref, uid) {
+    StreamProvider.autoDispose.family<UserModel?, String>((ref, uid) {
   final db = ref.watch(databaseServiceProvider);
   return db.streamUserProfile(uid);
 });
 
 /// Gets the current user's profile
-final currentUserProfileProvider = StreamProvider<UserModel?>((ref) {
+final currentUserProfileProvider = StreamProvider.autoDispose<UserModel?>((ref) {
   final user = ref.watch(currentUserProvider);
   if (user == null) return Stream.value(null);
   final db = ref.watch(databaseServiceProvider);

@@ -5,7 +5,7 @@ import 'queue_provider.dart';
 /// Streams the active "waiting" token for a student in a specific queue.
 /// Parameters: (queueId, studentId)
 final studentActiveTokenProvider =
-    StreamProvider.family<TokenModel?, ({String queueId, String studentId})>(
+    StreamProvider.autoDispose.family<TokenModel?, ({String queueId, String studentId})>(
         (ref, params) {
   final db = ref.watch(databaseServiceProvider);
   return db.streamStudentToken(params.queueId, params.studentId);
@@ -13,21 +13,21 @@ final studentActiveTokenProvider =
 
 /// Streams all active tokens for a student across all queues.
 final allStudentTokensProvider =
-    StreamProvider.family<List<TokenModel>, String>((ref, studentId) {
+    StreamProvider.autoDispose.family<List<TokenModel>, String>((ref, studentId) {
   final db = ref.watch(databaseServiceProvider);
   return db.streamAllStudentTokens(studentId);
 });
 
 /// Streams the "Up Next" list — next N waiting students in a queue.
 final upNextProvider =
-    StreamProvider.family<List<TokenModel>, String>((ref, queueId) {
+    StreamProvider.autoDispose.family<List<TokenModel>, String>((ref, queueId) {
   final db = ref.watch(databaseServiceProvider);
   return db.streamUpNext(queueId, limit: 5);
 });
 
 /// Streams the currently serving token for a queue
 final currentlyServingTokenProvider =
-    StreamProvider.family<TokenModel?, ({String queueId, int tokenNumber})>(
+    StreamProvider.autoDispose.family<TokenModel?, ({String queueId, int tokenNumber})>(
         (ref, params) {
   final db = ref.watch(databaseServiceProvider);
   return db.streamCurrentlyServing(params.queueId, params.tokenNumber);
@@ -35,7 +35,7 @@ final currentlyServingTokenProvider =
 
 /// Streams all tokens for a queue (history view)
 final queueHistoryProvider =
-    StreamProvider.family<List<TokenModel>, String>((ref, queueId) {
+    StreamProvider.autoDispose.family<List<TokenModel>, String>((ref, queueId) {
   final db = ref.watch(databaseServiceProvider);
   return db.streamAllTokensForQueue(queueId);
 });
