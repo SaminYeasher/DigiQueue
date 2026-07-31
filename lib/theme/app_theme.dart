@@ -41,13 +41,13 @@ class AppColors {
   static const backgroundGradient = LinearGradient(
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
-    colors: [Color(0xFF4C0024), Color(0xFF6A0032), Color(0xFF3C001C)],
+    colors: [background, surface, background],
   );
 
   static const cardGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [Color(0xFF530027), Color(0xFF3C001C)],
+    colors: [surfaceCard, surface],
   );
 
   static const successGradient = LinearGradient(
@@ -62,7 +62,7 @@ class AppTheme {
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,
-      scaffoldBackgroundColor: AppColors.surface,
+      scaffoldBackgroundColor: AppColors.background,
       colorScheme: const ColorScheme.dark(
         primary: AppColors.primary,
         secondary: AppColors.primaryLight,
@@ -175,7 +175,7 @@ class AppTheme {
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide(color: AppColors.textMuted.withValues(alpha: 0.3)),
+          borderSide: const BorderSide(color: AppColors.outline),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
@@ -185,7 +185,7 @@ class AppTheme {
           borderRadius: BorderRadius.circular(16),
           borderSide: const BorderSide(color: AppColors.error, width: 1.5),
         ),
-        hintStyle: const TextStyle(color: AppColors.textMuted),
+        hintStyle: const TextStyle(color: AppColors.textSecondary),
         labelStyle: const TextStyle(color: AppColors.textSecondary),
       ),
       cardTheme: CardThemeData(
@@ -201,7 +201,7 @@ class AppTheme {
           if (states.contains(WidgetState.selected)) {
             return AppColors.success;
           }
-          return AppColors.textMuted;
+          return AppColors.outline;
         }),
         trackColor: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
@@ -219,7 +219,7 @@ class AppTheme {
         behavior: SnackBarBehavior.floating,
       ),
       dialogTheme: DialogThemeData(
-        backgroundColor: AppColors.surfaceLight,
+        backgroundColor: AppColors.surfaceHighlight,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(24),
         ),
