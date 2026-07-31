@@ -14,6 +14,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
     with TickerProviderStateMixin {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
   final _nameController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
@@ -68,6 +69,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
+    _confirmPasswordController.dispose();
     _nameController.dispose();
     _fadeController.dispose();
     _slideController.dispose();
@@ -85,6 +87,49 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
     }
     if (!value.trim().toLowerCase().endsWith('.edu.bd')) {
       return 'Only .edu.bd email addresses are allowed';
+    }
+    return null;
+  }
+
+  /// Validate password: at least 6 characters, must contain both letters and numbers
+  String? _validatePassword(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Enter your password';
+    }
+    if (value.length < 6) {
+      return 'Password must be at least 6 characters';
+    }
+    if (_isRegistering) {
+      final hasLetter = value.contains(RegExp(r'[a-zA-Z]'));
+      final hasDigit = value.contains(RegExp(r'[0-9]'));
+      if (!hasLetter || !hasDigit) {
+        return 'Password must contain both letters and numbers';
+      }
+    }
+    return null;
+  }
+
+  /// Validate confirm password matches password
+  String? _validateConfirmPassword(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Please confirm your password';
+    }
+    if (value != _passwordController.text) {
+      return 'Passwords do not match';
+    }
+    return null;
+  }
+
+  /// Validate display name — for students it must be exactly 9 digits (student ID)
+  String? _validateDisplayName(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'Enter your name';
+    }
+    if (_selectedRole == 'student') {
+      final trimmed = value.trim();
+      if (!RegExp(r'^\d{9}$').hasMatch(trimmed)) {
+        return 'Student ID must be exactly 9 digits';
+      }
     }
     return null;
   }
@@ -114,6 +159,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
           // Clear all input fields
           _emailController.clear();
           _passwordController.clear();
+          _confirmPasswordController.clear();
           _nameController.clear();
 
           // Switch back to sign-in mode
@@ -301,15 +347,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                               if (_isRegistering) ...[
                                 TextFormField(
                                   controller: _nameController,
-                                  decoration: const InputDecoration(
-                                    labelText: 'Display Name',
+                                  keyboardType: _selectedRole == 'student'
+                                      ? TextInputType.number
+                                      : TextInputType.name,
+                                  decoration: InputDecoration(
+                                    labelText: _selectedRole == 'student'
+                                        ? 'Student ID (9 digits)'
+                                        : 'Display Name',
                                     prefixIcon:
-                                        Icon(Icons.person_outline_rounded),
+                                        const Icon(Icons.person_outline_rounded),
                                   ),
-                                  validator: (v) => _isRegistering &&
-                                          (v == null || v.trim().isEmpty)
-                                      ? 'Enter your name'
-                                      : null,
+                                  validator: _validateDisplayName,
                                 ),
                                 const SizedBox(height: 16),
                                 // Role selector
@@ -368,11 +416,21 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                   prefixIcon:
                                       Icon(Icons.lock_outline_rounded),
                                 ),
-                                validator: (v) =>
-                                    v == null || v.length < 6
-                                        ? 'At least 6 characters'
-                                        : null,
+                                validator: _validatePassword,
                               ),
+                              if (_isRegistering) ...[
+                                const SizedBox(height: 16),
+                                TextFormField(
+                                  controller: _confirmPasswordController,
+                                  obscureText: true,
+                                  decoration: const InputDecoration(
+                                    labelText: 'Confirm Password',
+                                    prefixIcon:
+                                        Icon(Icons.lock_rounded),
+                                  ),
+                                  validator: _validateConfirmPassword,
+                                ),
+                              ],
                               const SizedBox(height: 20),
                               if (_errorMessage != null)
                                 Padding(
@@ -441,6 +499,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                         // Clear all fields when switching modes
                                         _emailController.clear();
                                         _passwordController.clear();
+                                        _confirmPasswordController.clear();
                                         _nameController.clear();
                                       },
                                 child: Text(
