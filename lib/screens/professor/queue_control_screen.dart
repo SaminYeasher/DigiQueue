@@ -301,13 +301,17 @@ class _QueueControlScreenState extends ConsumerState<QueueControlScreen>
                         width: 40,
                         height: 40,
                         decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            colors: [Color(0xFF9B59B6), Color(0xFF6C3483)],
-                          ),
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        child: const Icon(Icons.cast_for_education_rounded,
-                            color: Colors.white, size: 20),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(12),
+                          child: Image.asset(
+                            'assets/icon.png',
+                            width: 40,
+                            height: 40,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
                       ),
                       const SizedBox(width: 12),
                       const Expanded(

@@ -267,23 +267,26 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                           );
                         },
                         child: Container(
-                          width: 90,
-                          height: 90,
+                          width: 100,
+                          height: 100,
                           decoration: BoxDecoration(
-                            gradient: AppColors.primaryGradient,
                             borderRadius: BorderRadius.circular(24),
                             boxShadow: [
                               BoxShadow(
-                                color: AppColors.primary.withValues(alpha: 0.4),
-                                blurRadius: 30,
+                                color: AppColors.primary.withValues(alpha: 0.2),
+                                blurRadius: 20,
                                 offset: const Offset(0, 10),
                               ),
                             ],
                           ),
-                          child: const Icon(
-                            Icons.queue_rounded,
-                            color: Colors.white,
-                            size: 44,
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(24),
+                            child: Image.asset(
+                              'assets/icon.png',
+                              width: 150,
+                              height: 150,
+                              fit: BoxFit.cover,
+                            ),
                           ),
                         ),
                       ),
@@ -350,6 +353,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                   keyboardType: _selectedRole == 'student'
                                       ? TextInputType.number
                                       : TextInputType.name,
+                                  textInputAction: TextInputAction.next,
                                   decoration: InputDecoration(
                                     labelText: _selectedRole == 'student'
                                         ? 'Student ID (9 digits)'
@@ -399,6 +403,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                               TextFormField(
                                 controller: _emailController,
                                 keyboardType: TextInputType.emailAddress,
+                                textInputAction: TextInputAction.next,
                                 decoration: const InputDecoration(
                                   labelText: 'University Email',
                                   hintText: 'you@university.edu.bd',
@@ -411,6 +416,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                               TextFormField(
                                 controller: _passwordController,
                                 obscureText: true,
+                                textInputAction: _isRegistering ? TextInputAction.next : TextInputAction.done,
+                                onFieldSubmitted: (_) {
+                                  if (!_isRegistering) _submitEmailForm();
+                                },
                                 decoration: const InputDecoration(
                                   labelText: 'Password',
                                   prefixIcon:
@@ -423,6 +432,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                 TextFormField(
                                   controller: _confirmPasswordController,
                                   obscureText: true,
+                                  textInputAction: TextInputAction.done,
+                                  onFieldSubmitted: (_) => _submitEmailForm(),
                                   decoration: const InputDecoration(
                                     labelText: 'Confirm Password',
                                     prefixIcon:
