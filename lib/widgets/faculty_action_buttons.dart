@@ -92,7 +92,7 @@ class FacultyActionButtons extends StatelessWidget {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
                 ),
-                color: AppColors.surfaceLight,
+                color: AppColors.surfaceHighlight,
                 itemBuilder: (context) => [
                   _holdMenuItem(2),
                   _holdMenuItem(5),

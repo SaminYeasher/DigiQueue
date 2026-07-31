@@ -154,12 +154,12 @@ class _ActiveTicketScreenState extends ConsumerState<ActiveTicketScreen>
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   const Icon(Icons.room_outlined,
-                                      size: 13, color: AppColors.textMuted),
+                                      size: 13, color: AppColors.textSecondary),
                                   const SizedBox(width: 4),
                                   Text(
                                     widget.roomNumber,
                                     style: const TextStyle(
-                                      color: AppColors.textMuted,
+                                      color: AppColors.textSecondary,
                                       fontSize: 13,
                                     ),
                                   ),
@@ -267,7 +267,7 @@ class _ActiveTicketScreenState extends ConsumerState<ActiveTicketScreen>
           Icon(
             Icons.confirmation_number_outlined,
             size: 64,
-            color: AppColors.textMuted.withValues(alpha: 0.4),
+            color: AppColors.textSecondary.withValues(alpha: 0.4),
           ),
           const SizedBox(height: 16),
           const Text(
@@ -283,7 +283,7 @@ class _ActiveTicketScreenState extends ConsumerState<ActiveTicketScreen>
             'Go back and join a queue to get a token',
             textAlign: TextAlign.center,
             style: TextStyle(
-              color: AppColors.textMuted,
+              color: AppColors.textSecondary,
               fontSize: 14,
             ),
           ),

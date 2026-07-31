@@ -94,7 +94,7 @@ class _TicketDisplayState extends State<TicketDisplay>
   Color get _glowColor {
     if (_isYourTurn) return AppColors.successGlow;
     if (_isAlmostTurn) return AppColors.warningGlow;
-    return AppColors.surfaceOverlay;
+    return AppColors.surfaceHighlight;
   }
 
   @override
@@ -148,7 +148,7 @@ class _TicketDisplayState extends State<TicketDisplay>
         Text(
           'YOUR TOKEN',
           style: TextStyle(
-            color: AppColors.textMuted,
+            color: AppColors.textSecondary,
             fontSize: 12,
             fontWeight: FontWeight.w600,
             letterSpacing: 2,
@@ -200,7 +200,7 @@ class _TicketDisplayState extends State<TicketDisplay>
         Text(
           'CURRENTLY SERVING',
           style: TextStyle(
-            color: AppColors.textMuted,
+            color: AppColors.textSecondary,
             fontSize: 12,
             fontWeight: FontWeight.w600,
             letterSpacing: 2,

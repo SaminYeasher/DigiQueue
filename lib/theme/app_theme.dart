@@ -2,16 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AppColors {
-  // Primary palette
-  static const primary = Color(0xFF6C63FF);
-  static const primaryLight = Color(0xFF8B83FF);
-  static const primaryDark = Color(0xFF4A42DB);
+  // Primary Gold Palette 
+  static const primary = Color(0xFFF1C232);       
+  static const primaryLight = Color(0xFFFFE599);  
+  static const primaryDark = Color(0xFFD4A316);   
 
-  // Surface / Background
-  static const surface = Color(0xFF1A1A2E);
-  static const surfaceLight = Color(0xFF232342);
-  static const surfaceCard = Color(0xFF2A2A4A);
-  static const surfaceOverlay = Color(0x336C63FF);
+  // Corrected Burgundy Surfaces
+  static const background = Color(0xFF1E000E);    
+  static const surface = Color(0xFF330018);       
+  static const surfaceCard = Color(0xFF4A0023);  
+  static const surfaceHighlight = Color(0xFF6A0032); 
 
   // Status colors
   static const success = Color(0xFF2ECC71); // Live / your turn
@@ -21,28 +21,28 @@ class AppColors {
   static const error = Color(0xFFFF6B6B); // Closed / skipped
   static const errorGlow = Color(0x33FF6B6B);
 
-  // Text
-  static const textPrimary = Color(0xFFFFFFFF);
-  static const textSecondary = Color(0xFFB0B0CC);
-  static const textMuted = Color(0xFF6E6E8A);
+  // Typography & Dividers
+  static const textPrimary = Color(0xFFFFF0F5);   
+  static const textSecondary = Color(0xFFC0A6B2); 
+  static const outline = Color(0xFF5C1439);
 
   // Gradients
   static const primaryGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [Color(0xFF6C63FF), Color(0xFF9B59B6)],
+    colors: [Color(0xFFF1C232), Color(0xFFFFD966)],
   );
 
   static const backgroundGradient = LinearGradient(
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
-    colors: [Color(0xFF0F0F23), Color(0xFF1A1A2E), Color(0xFF16213E)],
+    colors: [background, surface, background],
   );
 
   static const cardGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [Color(0xFF2A2A4A), Color(0xFF1E1E3A)],
+    colors: [surfaceCard, surface],
   );
 
   static const successGradient = LinearGradient(
@@ -57,7 +57,7 @@ class AppTheme {
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,
-      scaffoldBackgroundColor: AppColors.surface,
+      scaffoldBackgroundColor: AppColors.background,
       colorScheme: const ColorScheme.dark(
         primary: AppColors.primary,
         secondary: AppColors.primaryLight,
@@ -170,7 +170,7 @@ class AppTheme {
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide(color: AppColors.textMuted.withValues(alpha: 0.3)),
+          borderSide: const BorderSide(color: AppColors.outline),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
@@ -180,7 +180,7 @@ class AppTheme {
           borderRadius: BorderRadius.circular(16),
           borderSide: const BorderSide(color: AppColors.error, width: 1.5),
         ),
-        hintStyle: const TextStyle(color: AppColors.textMuted),
+        hintStyle: const TextStyle(color: AppColors.textSecondary),
         labelStyle: const TextStyle(color: AppColors.textSecondary),
       ),
       cardTheme: CardThemeData(
@@ -196,7 +196,7 @@ class AppTheme {
           if (states.contains(WidgetState.selected)) {
             return AppColors.success;
           }
-          return AppColors.textMuted;
+          return AppColors.outline;
         }),
         trackColor: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
@@ -214,7 +214,7 @@ class AppTheme {
         behavior: SnackBarBehavior.floating,
       ),
       dialogTheme: DialogThemeData(
-        backgroundColor: AppColors.surfaceLight,
+        backgroundColor: AppColors.surfaceHighlight,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(24),
         ),

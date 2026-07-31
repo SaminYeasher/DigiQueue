@@ -85,7 +85,7 @@ class _StudentAppointmentScreenState
                   ),
                   indicatorSize: TabBarIndicatorSize.tab,
                   labelColor: AppColors.primary,
-                  unselectedLabelColor: AppColors.textMuted,
+                  unselectedLabelColor: AppColors.textSecondary,
                   labelStyle: const TextStyle(
                       fontWeight: FontWeight.w600, fontSize: 14),
                   dividerColor: Colors.transparent,
@@ -151,7 +151,7 @@ class _RequestAppointmentTabState
           data: Theme.of(context).copyWith(
             colorScheme: const ColorScheme.dark(
               primary: AppColors.primary,
-              surface: AppColors.surfaceLight,
+              surface: AppColors.surfaceHighlight,
             ),
           ),
           child: child!,
@@ -172,7 +172,7 @@ class _RequestAppointmentTabState
           data: Theme.of(context).copyWith(
             colorScheme: const ColorScheme.dark(
               primary: AppColors.primary,
-              surface: AppColors.surfaceLight,
+              surface: AppColors.surfaceHighlight,
             ),
           ),
           child: child!,
@@ -276,7 +276,7 @@ class _RequestAppointmentTabState
                   color: AppColors.surfaceCard,
                   borderRadius: BorderRadius.circular(14),
                   border: Border.all(
-                    color: AppColors.textMuted.withValues(alpha: 0.3),
+                    color: AppColors.textSecondary.withValues(alpha: 0.3),
                   ),
                 ),
                 child: const Row(
@@ -286,7 +286,7 @@ class _RequestAppointmentTabState
                       child: CircularProgressIndicator(strokeWidth: 2),
                     ),
                     SizedBox(width: 12),
-                    Text('Loading faculty...', style: TextStyle(color: AppColors.textMuted)),
+                    Text('Loading faculty...', style: TextStyle(color: AppColors.textSecondary)),
                   ],
                 ),
               ),
@@ -316,19 +316,19 @@ class _RequestAppointmentTabState
                     color: AppColors.surfaceCard,
                     borderRadius: BorderRadius.circular(14),
                     border: Border.all(
-                      color: AppColors.textMuted.withValues(alpha: 0.3),
+                      color: AppColors.textSecondary.withValues(alpha: 0.3),
                     ),
                   ),
                   child: DropdownButton<UserModel>(
                     value: _selectedFaculty,
                     isExpanded: true,
-                    dropdownColor: AppColors.surfaceLight,
+                    dropdownColor: AppColors.surfaceHighlight,
                     underline: const SizedBox(),
                     hint: Text(
                       facultyList.isEmpty
                           ? 'No faculty registered yet'
                           : 'Choose faculty member',
-                      style: const TextStyle(color: AppColors.textMuted),
+                      style: const TextStyle(color: AppColors.textSecondary),
                     ),
                     items: facultyList
                         .map((f) => DropdownMenuItem(
@@ -364,13 +364,13 @@ class _RequestAppointmentTabState
                         borderRadius: BorderRadius.circular(14),
                         border: Border.all(
                           color:
-                              AppColors.textMuted.withValues(alpha: 0.3),
+                              AppColors.textSecondary.withValues(alpha: 0.3),
                         ),
                       ),
                       child: Row(
                         children: [
                           const Icon(Icons.calendar_today_rounded,
-                              size: 18, color: AppColors.textMuted),
+                              size: 18, color: AppColors.textSecondary),
                           const SizedBox(width: 10),
                           Text(
                             _selectedDate != null
@@ -379,7 +379,7 @@ class _RequestAppointmentTabState
                             style: TextStyle(
                               color: _selectedDate != null
                                   ? AppColors.textPrimary
-                                  : AppColors.textMuted,
+                                  : AppColors.textSecondary,
                               fontSize: 14,
                             ),
                           ),
@@ -400,13 +400,13 @@ class _RequestAppointmentTabState
                         borderRadius: BorderRadius.circular(14),
                         border: Border.all(
                           color:
-                              AppColors.textMuted.withValues(alpha: 0.3),
+                              AppColors.textSecondary.withValues(alpha: 0.3),
                         ),
                       ),
                       child: Row(
                         children: [
                           const Icon(Icons.access_time_rounded,
-                              size: 18, color: AppColors.textMuted),
+                              size: 18, color: AppColors.textSecondary),
                           const SizedBox(width: 10),
                           Text(
                             _selectedTime != null
@@ -415,7 +415,7 @@ class _RequestAppointmentTabState
                             style: TextStyle(
                               color: _selectedTime != null
                                   ? AppColors.textPrimary
-                                  : AppColors.textMuted,
+                                  : AppColors.textSecondary,
                               fontSize: 14,
                             ),
                           ),
@@ -507,7 +507,7 @@ class _MyAppointmentsTab extends ConsumerWidget {
               children: [
                 Icon(Icons.event_busy_rounded,
                     size: 64,
-                    color: AppColors.textMuted.withValues(alpha: 0.4)),
+                    color: AppColors.textSecondary.withValues(alpha: 0.4)),
                 const SizedBox(height: 16),
                 const Text(
                   'No appointments yet',
@@ -522,7 +522,7 @@ class _MyAppointmentsTab extends ConsumerWidget {
                   'Request an appointment from\nthe "Request New" tab',
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    color: AppColors.textMuted,
+                    color: AppColors.textSecondary,
                     fontSize: 14,
                   ),
                 ),
@@ -619,23 +619,23 @@ class _StudentAppointmentCard extends StatelessWidget {
           Row(
             children: [
               const Icon(Icons.calendar_today_rounded,
-                  size: 13, color: AppColors.textMuted),
+                  size: 13, color: AppColors.textSecondary),
               const SizedBox(width: 6),
               Text(
                 dateFormat.format(appointment.requestedDate),
                 style: const TextStyle(
-                  color: AppColors.textMuted,
+                  color: AppColors.textSecondary,
                   fontSize: 12,
                 ),
               ),
               const SizedBox(width: 12),
               const Icon(Icons.access_time_rounded,
-                  size: 13, color: AppColors.textMuted),
+                  size: 13, color: AppColors.textSecondary),
               const SizedBox(width: 6),
               Text(
                 appointment.requestedTime,
                 style: const TextStyle(
-                  color: AppColors.textMuted,
+                  color: AppColors.textSecondary,
                   fontSize: 12,
                 ),
               ),

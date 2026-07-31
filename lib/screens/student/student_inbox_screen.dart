@@ -69,7 +69,7 @@ class StudentInboxScreen extends ConsumerWidget {
                           children: [
                             Icon(Icons.inbox_rounded,
                                 size: 64,
-                                color: AppColors.textMuted
+                                color: AppColors.textSecondary
                                     .withValues(alpha: 0.4)),
                             const SizedBox(height: 16),
                             const Text(
@@ -85,7 +85,7 @@ class StudentInboxScreen extends ConsumerWidget {
                               'You\'ll receive notifications here\nfor appointment responses',
                               textAlign: TextAlign.center,
                               style: TextStyle(
-                                color: AppColors.textMuted,
+                                color: AppColors.textSecondary,
                                 fontSize: 14,
                               ),
                             ),
@@ -200,7 +200,7 @@ class _MessageCard extends ConsumerWidget {
                   Text(
                     'From: ${message.fromName}',
                     style: const TextStyle(
-                      color: AppColors.textMuted,
+                      color: AppColors.textSecondary,
                       fontSize: 12,
                     ),
                   ),
@@ -214,7 +214,7 @@ class _MessageCard extends ConsumerWidget {
                 Text(
                   dateFormat.format(message.createdAt),
                   style: const TextStyle(
-                    color: AppColors.textMuted,
+                    color: AppColors.textSecondary,
                     fontSize: 11,
                   ),
                 ),
@@ -242,7 +242,7 @@ class _MessageCard extends ConsumerWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: AppColors.surfaceLight,
+        backgroundColor: AppColors.surfaceHighlight,
         title: Text(
           message.subject,
           style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
@@ -255,7 +255,7 @@ class _MessageCard extends ConsumerWidget {
               children: [
                 const Text('From: ',
                     style: TextStyle(
-                        color: AppColors.textMuted, fontSize: 13)),
+                        color: AppColors.textSecondary, fontSize: 13)),
                 Text(message.fromName,
                     style: const TextStyle(
                         color: AppColors.textSecondary, fontSize: 13)),
@@ -265,7 +265,7 @@ class _MessageCard extends ConsumerWidget {
             Text(
               dateFormat.format(message.createdAt),
               style: const TextStyle(
-                  color: AppColors.textMuted, fontSize: 12),
+                  color: AppColors.textSecondary, fontSize: 12),
             ),
             const Divider(height: 24, color: AppColors.surfaceCard),
             Text(

@@ -155,11 +155,11 @@ class _HoldTimerWidgetState extends State<HoldTimerWidget>
               TextButton.icon(
                 onPressed: widget.onCancelHold,
                 icon: const Icon(Icons.cancel_outlined,
-                    size: 18, color: AppColors.textMuted),
+                    size: 18, color: AppColors.textSecondary),
                 label: const Text(
                   'Cancel Hold',
                   style: TextStyle(
-                    color: AppColors.textMuted,
+                    color: AppColors.textSecondary,
                     fontSize: 13,
                   ),
                 ),

@@ -24,13 +24,13 @@ class UpNextList extends StatelessWidget {
             Icon(
               Icons.inbox_rounded,
               size: 48,
-              color: AppColors.textMuted.withValues(alpha: 0.5),
+              color: AppColors.textSecondary.withValues(alpha: 0.5),
             ),
             const SizedBox(height: 12),
             const Text(
               'No students waiting',
               style: TextStyle(
-                color: AppColors.textMuted,
+                color: AppColors.textSecondary,
                 fontSize: 15,
                 fontWeight: FontWeight.w500,
               ),
@@ -82,7 +82,7 @@ class UpNextList extends StatelessWidget {
             ),
           ),
           const Divider(
-            color: AppColors.surfaceLight,
+            color: AppColors.surfaceHighlight,
             height: 1,
             indent: 20,
             endIndent: 20,
@@ -140,7 +140,7 @@ class _StudentTile extends StatelessWidget {
             decoration: BoxDecoration(
               color: isNext
                   ? AppColors.primary
-                  : AppColors.surfaceLight,
+                  : AppColors.surfaceHighlight,
               borderRadius: BorderRadius.circular(10),
             ),
             child: Center(
@@ -186,7 +186,7 @@ class _StudentTile extends StatelessWidget {
           Text(
             _formatWaitTime(token.joinedAt),
             style: const TextStyle(
-              color: AppColors.textMuted,
+              color: AppColors.textSecondary,
               fontSize: 12,
             ),
           ),

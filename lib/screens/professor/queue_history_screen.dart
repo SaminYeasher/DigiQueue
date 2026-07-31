@@ -56,18 +56,18 @@ class QueueHistoryScreen extends ConsumerWidget {
                               Text(
                                 professorName,
                                 style: const TextStyle(
-                                  color: AppColors.textMuted,
+                                  color: AppColors.textSecondary,
                                   fontSize: 13,
                                 ),
                               ),
                               const SizedBox(width: 8),
                               const Icon(Icons.room_outlined,
-                                  size: 12, color: AppColors.textMuted),
+                                  size: 12, color: AppColors.textSecondary),
                               const SizedBox(width: 4),
                               Text(
                                 roomNumber,
                                 style: const TextStyle(
-                                  color: AppColors.textMuted,
+                                  color: AppColors.textSecondary,
                                   fontSize: 13,
                                 ),
                               ),
@@ -100,7 +100,7 @@ class QueueHistoryScreen extends ConsumerWidget {
                             Icon(
                               Icons.history_rounded,
                               size: 64,
-                              color: AppColors.textMuted.withValues(alpha: 0.4),
+                              color: AppColors.textSecondary.withValues(alpha: 0.4),
                             ),
                             const SizedBox(height: 16),
                             const Text(
@@ -154,7 +154,7 @@ class _TokenHistoryCard extends StatelessWidget {
       case 'serving':
         return AppColors.primary;
       default:
-        return AppColors.textMuted;
+        return AppColors.textSecondary;
     }
   }
 
@@ -232,7 +232,7 @@ class _TokenHistoryCard extends StatelessWidget {
                 Text(
                   token.studentEmail,
                   style: const TextStyle(
-                    color: AppColors.textMuted,
+                    color: AppColors.textSecondary,
                     fontSize: 12,
                   ),
                 ),
@@ -240,7 +240,7 @@ class _TokenHistoryCard extends StatelessWidget {
                 Text(
                   'Joined: ${dateFormat.format(token.joinedAt)}',
                   style: const TextStyle(
-                    color: AppColors.textMuted,
+                    color: AppColors.textSecondary,
                     fontSize: 11,
                   ),
                 ),

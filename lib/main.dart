@@ -83,7 +83,7 @@ class _AuthGate extends ConsumerWidget {
               const SizedBox(height: 4),
               Text(
                 '$error',
-                style: TextStyle(color: AppColors.textMuted, fontSize: 12),
+                style: TextStyle(color: AppColors.textSecondary, fontSize: 12),
                 textAlign: TextAlign.center,
               ),
             ],

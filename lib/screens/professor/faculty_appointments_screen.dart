@@ -69,7 +69,7 @@ class FacultyAppointmentsScreen extends ConsumerWidget {
                           children: [
                             Icon(Icons.calendar_today_rounded,
                                 size: 64,
-                                color: AppColors.textMuted
+                                color: AppColors.textSecondary
                                     .withValues(alpha: 0.4)),
                             const SizedBox(height: 16),
                             const Text(
@@ -177,7 +177,7 @@ class _AppointmentCard extends ConsumerWidget {
                     Text(
                       appointment.studentEmail,
                       style: const TextStyle(
-                        color: AppColors.textMuted,
+                        color: AppColors.textSecondary,
                         fontSize: 12,
                       ),
                     ),
@@ -231,7 +231,7 @@ class _AppointmentCard extends ConsumerWidget {
           Row(
             children: [
               const Icon(Icons.calendar_today_rounded,
-                  size: 14, color: AppColors.textMuted),
+                  size: 14, color: AppColors.textSecondary),
               const SizedBox(width: 6),
               Text(
                 dateFormat.format(appointment.requestedDate),
@@ -242,7 +242,7 @@ class _AppointmentCard extends ConsumerWidget {
               ),
               const SizedBox(width: 16),
               const Icon(Icons.access_time_rounded,
-                  size: 14, color: AppColors.textMuted),
+                  size: 14, color: AppColors.textSecondary),
               const SizedBox(width: 6),
               Text(
                 appointment.requestedTime,
@@ -410,7 +410,7 @@ class _AppointmentCard extends ConsumerWidget {
           data: Theme.of(context).copyWith(
             colorScheme: const ColorScheme.dark(
               primary: AppColors.primary,
-              surface: AppColors.surfaceLight,
+              surface: AppColors.surfaceHighlight,
             ),
           ),
           child: child!,
@@ -428,7 +428,7 @@ class _AppointmentCard extends ConsumerWidget {
           data: Theme.of(context).copyWith(
             colorScheme: const ColorScheme.dark(
               primary: AppColors.primary,
-              surface: AppColors.surfaceLight,
+              surface: AppColors.surfaceHighlight,
             ),
           ),
           child: child!,

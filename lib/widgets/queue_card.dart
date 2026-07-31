@@ -116,12 +116,12 @@ class _QueueCardState extends State<QueueCard>
                       Row(
                         children: [
                           Icon(Icons.room_outlined,
-                              size: 14, color: AppColors.textMuted),
+                              size: 14, color: AppColors.textSecondary),
                           const SizedBox(width: 4),
                           Text(
                             queue.roomNumber,
                             style: const TextStyle(
-                              color: AppColors.textMuted,
+                              color: AppColors.textSecondary,
                               fontSize: 13,
                             ),
                           ),
@@ -295,13 +295,13 @@ class _StatChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: AppColors.surfaceLight.withValues(alpha: 0.6),
+        color: AppColors.surfaceHighlight.withValues(alpha: 0.6),
         borderRadius: BorderRadius.circular(10),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 14, color: AppColors.textMuted),
+          Icon(icon, size: 14, color: AppColors.textSecondary),
           const SizedBox(width: 6),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -309,7 +309,7 @@ class _StatChip extends StatelessWidget {
               Text(
                 label,
                 style: const TextStyle(
-                  color: AppColors.textMuted,
+                  color: AppColors.textSecondary,
                   fontSize: 10,
                   fontWeight: FontWeight.w500,
                 ),

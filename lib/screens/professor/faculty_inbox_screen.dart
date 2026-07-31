@@ -69,7 +69,7 @@ class FacultyInboxScreen extends ConsumerWidget {
                           children: [
                             Icon(Icons.inbox_rounded,
                                 size: 64,
-                                color: AppColors.textMuted
+                                color: AppColors.textSecondary
                                     .withValues(alpha: 0.4)),
                             const SizedBox(height: 16),
                             const Text(
@@ -190,7 +190,7 @@ class _MessageCard extends ConsumerWidget {
                   Text(
                     'From: ${message.fromName}',
                     style: const TextStyle(
-                      color: AppColors.textMuted,
+                      color: AppColors.textSecondary,
                       fontSize: 12,
                     ),
                   ),
@@ -204,7 +204,7 @@ class _MessageCard extends ConsumerWidget {
                 Text(
                   dateFormat.format(message.createdAt),
                   style: const TextStyle(
-                    color: AppColors.textMuted,
+                    color: AppColors.textSecondary,
                     fontSize: 11,
                   ),
                 ),
@@ -240,7 +240,7 @@ class _MessageCard extends ConsumerWidget {
       builder: (context) => StatefulBuilder(
         builder: (context, setDialogState) {
           return AlertDialog(
-            backgroundColor: AppColors.surfaceLight,
+            backgroundColor: AppColors.surfaceHighlight,
             title: Row(
               children: [
                 Container(
@@ -283,7 +283,7 @@ class _MessageCard extends ConsumerWidget {
                         Row(
                           children: [
                             const Icon(Icons.person_rounded,
-                                size: 16, color: AppColors.textMuted),
+                                size: 16, color: AppColors.textSecondary),
                             const SizedBox(width: 6),
                             Expanded(
                               child: Text(
@@ -339,7 +339,7 @@ class _MessageCard extends ConsumerWidget {
                                   data: Theme.of(context).copyWith(
                                     colorScheme: const ColorScheme.dark(
                                       primary: AppColors.primary,
-                                      surface: AppColors.surfaceLight,
+                                      surface: AppColors.surfaceHighlight,
                                     ),
                                   ),
                                   child: child!,
@@ -358,13 +358,13 @@ class _MessageCard extends ConsumerWidget {
                               borderRadius: BorderRadius.circular(10),
                               border: Border.all(
                                 color:
-                                    AppColors.textMuted.withValues(alpha: 0.3),
+                                    AppColors.textSecondary.withValues(alpha: 0.3),
                               ),
                             ),
                             child: Row(
                               children: [
                                 const Icon(Icons.calendar_today_rounded,
-                                    size: 16, color: AppColors.textMuted),
+                                    size: 16, color: AppColors.textSecondary),
                                 const SizedBox(width: 8),
                                 Text(
                                   proposedDate != null
@@ -373,7 +373,7 @@ class _MessageCard extends ConsumerWidget {
                                   style: TextStyle(
                                     color: proposedDate != null
                                         ? AppColors.textPrimary
-                                        : AppColors.textMuted,
+                                        : AppColors.textSecondary,
                                     fontSize: 13,
                                   ),
                                 ),
@@ -395,7 +395,7 @@ class _MessageCard extends ConsumerWidget {
                                   data: Theme.of(context).copyWith(
                                     colorScheme: const ColorScheme.dark(
                                       primary: AppColors.primary,
-                                      surface: AppColors.surfaceLight,
+                                      surface: AppColors.surfaceHighlight,
                                     ),
                                   ),
                                   child: child!,
@@ -414,13 +414,13 @@ class _MessageCard extends ConsumerWidget {
                               borderRadius: BorderRadius.circular(10),
                               border: Border.all(
                                 color:
-                                    AppColors.textMuted.withValues(alpha: 0.3),
+                                    AppColors.textSecondary.withValues(alpha: 0.3),
                               ),
                             ),
                             child: Row(
                               children: [
                                 const Icon(Icons.access_time_rounded,
-                                    size: 16, color: AppColors.textMuted),
+                                    size: 16, color: AppColors.textSecondary),
                                 const SizedBox(width: 8),
                                 Text(
                                   proposedTime != null
@@ -429,7 +429,7 @@ class _MessageCard extends ConsumerWidget {
                                   style: TextStyle(
                                     color: proposedTime != null
                                         ? AppColors.textPrimary
-                                        : AppColors.textMuted,
+                                        : AppColors.textSecondary,
                                     fontSize: 13,
                                   ),
                                 ),
@@ -459,7 +459,7 @@ class _MessageCard extends ConsumerWidget {
                     decoration: InputDecoration(
                       hintText: 'Add a message for the student...',
                       hintStyle:
-                          const TextStyle(color: AppColors.textMuted, fontSize: 13),
+                          const TextStyle(color: AppColors.textSecondary, fontSize: 13),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -594,7 +594,7 @@ class _MessageCard extends ConsumerWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: AppColors.surfaceLight,
+        backgroundColor: AppColors.surfaceHighlight,
         title: Text(
           message.subject,
           style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
@@ -607,7 +607,7 @@ class _MessageCard extends ConsumerWidget {
               children: [
                 const Text('From: ',
                     style: TextStyle(
-                        color: AppColors.textMuted, fontSize: 13)),
+                        color: AppColors.textSecondary, fontSize: 13)),
                 Text(message.fromName,
                     style: const TextStyle(
                         color: AppColors.textSecondary, fontSize: 13)),
@@ -617,7 +617,7 @@ class _MessageCard extends ConsumerWidget {
             Text(
               dateFormat.format(message.createdAt),
               style: const TextStyle(
-                  color: AppColors.textMuted, fontSize: 12),
+                  color: AppColors.textSecondary, fontSize: 12),
             ),
             const Divider(height: 24, color: AppColors.surfaceCard),
             Text(

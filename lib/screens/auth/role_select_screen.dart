@@ -151,7 +151,7 @@ class _RoleSelectScreenState extends ConsumerState<RoleSelectScreen>
                             gradient: const LinearGradient(
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
-                              colors: [Color(0xFF6C63FF), Color(0xFF4A42DB)],
+                              colors: [Color(0xFFF1C232), Color(0xFFBF9000)],
                             ),
                             isSelected: _selectedIndex == 0,
                             onTap: () => _selectRole(0),

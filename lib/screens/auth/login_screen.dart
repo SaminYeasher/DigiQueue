@@ -213,7 +213,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                   ),
                 ],
               ),
-              backgroundColor: AppColors.surfaceLight,
+              backgroundColor: AppColors.surfaceHighlight,
               behavior: SnackBarBehavior.floating,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16),
@@ -368,7 +368,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                     color: AppColors.surfaceCard,
                                     borderRadius: BorderRadius.circular(14),
                                     border: Border.all(
-                                      color: AppColors.textMuted
+                                      color: AppColors.textSecondary
                                           .withValues(alpha: 0.3),
                                     ),
                                   ),
@@ -567,7 +567,7 @@ class _RoleTab extends StatelessWidget {
                 size: 18,
                 color: isSelected
                     ? AppColors.primary
-                    : AppColors.textMuted,
+                    : AppColors.textSecondary,
               ),
               const SizedBox(width: 6),
               Text(
@@ -575,7 +575,7 @@ class _RoleTab extends StatelessWidget {
                 style: TextStyle(
                   color: isSelected
                       ? AppColors.primary
-                      : AppColors.textMuted,
+                      : AppColors.textSecondary,
                   fontWeight: FontWeight.w600,
                   fontSize: 13,
                 ),

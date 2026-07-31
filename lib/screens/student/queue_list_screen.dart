@@ -143,7 +143,7 @@ class _QueueListScreenState extends ConsumerState<QueueListScreen>
                             Text(
                               'Find and join a queue',
                               style: TextStyle(
-                                color: AppColors.textMuted,
+                                color: AppColors.textSecondary,
                                 fontSize: 13,
                               ),
                             ),
@@ -159,7 +159,7 @@ class _QueueListScreenState extends ConsumerState<QueueListScreen>
                           ));
                         },
                         icon: const Icon(Icons.calendar_month_rounded,
-                            color: AppColors.textMuted),
+                            color: AppColors.textSecondary),
                         tooltip: 'Appointments',
                       ),
                       // Inbox with badge
@@ -173,14 +173,14 @@ class _QueueListScreenState extends ConsumerState<QueueListScreen>
                             ));
                           },
                           icon: const Icon(Icons.inbox_rounded,
-                              color: AppColors.textMuted),
+                              color: AppColors.textSecondary),
                           tooltip: 'Inbox',
                         ),
                       ),
                       IconButton(
                         onPressed: _signOut,
                         icon: const Icon(Icons.logout_rounded,
-                            color: AppColors.textMuted),
+                            color: AppColors.textSecondary),
                         tooltip: 'Sign Out',
                       ),
                     ],
@@ -211,7 +211,7 @@ class _QueueListScreenState extends ConsumerState<QueueListScreen>
                           Text(
                             '$error',
                             style: TextStyle(
-                                color: AppColors.textMuted, fontSize: 12),
+                                color: AppColors.textSecondary, fontSize: 12),
                             textAlign: TextAlign.center,
                           ),
                         ],
@@ -227,7 +227,7 @@ class _QueueListScreenState extends ConsumerState<QueueListScreen>
                                 Icons.search_off_rounded,
                                 size: 64,
                                 color:
-                                    AppColors.textMuted.withValues(alpha: 0.4),
+                                    AppColors.textSecondary.withValues(alpha: 0.4),
                               ),
                               const SizedBox(height: 16),
                               const Text(
@@ -243,7 +243,7 @@ class _QueueListScreenState extends ConsumerState<QueueListScreen>
                                 'Check back when a professor\nopens their office hours',
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
-                                  color: AppColors.textMuted,
+                                  color: AppColors.textSecondary,
                                   fontSize: 14,
                                 ),
                               ),

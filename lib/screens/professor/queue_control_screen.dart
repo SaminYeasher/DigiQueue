@@ -325,7 +325,7 @@ class _QueueControlScreenState extends ConsumerState<QueueControlScreen>
                             Text(
                               'Manage your office hours',
                               style: TextStyle(
-                                color: AppColors.textMuted,
+                                color: AppColors.textSecondary,
                                 fontSize: 13,
                               ),
                             ),
@@ -341,7 +341,7 @@ class _QueueControlScreenState extends ConsumerState<QueueControlScreen>
                           ));
                         },
                         icon: const Icon(Icons.calendar_month_rounded,
-                            color: AppColors.textMuted),
+                            color: AppColors.textSecondary),
                         tooltip: 'Appointments',
                       ),
                       // Inbox button with badge
@@ -355,14 +355,14 @@ class _QueueControlScreenState extends ConsumerState<QueueControlScreen>
                             ));
                           },
                           icon: const Icon(Icons.inbox_rounded,
-                              color: AppColors.textMuted),
+                              color: AppColors.textSecondary),
                           tooltip: 'Inbox',
                         ),
                       ),
                       IconButton(
                         onPressed: _signOut,
                         icon: const Icon(Icons.logout_rounded,
-                            color: AppColors.textMuted),
+                            color: AppColors.textSecondary),
                         tooltip: 'Sign Out',
                       ),
                     ],
@@ -416,7 +416,7 @@ class _QueueControlScreenState extends ConsumerState<QueueControlScreen>
           Icon(
             Icons.add_circle_outline_rounded,
             size: 72,
-            color: AppColors.textMuted.withValues(alpha: 0.4),
+            color: AppColors.textSecondary.withValues(alpha: 0.4),
           ),
           const SizedBox(height: 20),
           const Text(
@@ -432,7 +432,7 @@ class _QueueControlScreenState extends ConsumerState<QueueControlScreen>
             'Create your first queue to start\nmanaging office hours',
             textAlign: TextAlign.center,
             style: TextStyle(
-              color: AppColors.textMuted,
+              color: AppColors.textSecondary,
               fontSize: 14,
             ),
           ),
@@ -606,12 +606,12 @@ class _LiveControlCard extends StatelessWidget {
                     Row(
                       children: [
                         const Icon(Icons.room_outlined,
-                            size: 14, color: AppColors.textMuted),
+                            size: 14, color: AppColors.textSecondary),
                         const SizedBox(width: 4),
                         Text(
                           queue.roomNumber,
                           style: const TextStyle(
-                            color: AppColors.textMuted,
+                            color: AppColors.textSecondary,
                             fontSize: 13,
                           ),
                         ),
@@ -658,7 +658,7 @@ class _LiveControlCard extends StatelessWidget {
                 Text(
                   'CURRENTLY SERVING',
                   style: TextStyle(
-                    color: AppColors.textMuted,
+                    color: AppColors.textSecondary,
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
                     letterSpacing: 2,
@@ -711,7 +711,7 @@ class _LiveControlCard extends StatelessWidget {
               IconButton(
                 onPressed: onReset,
                 icon: const Icon(Icons.refresh_rounded),
-                color: AppColors.textMuted,
+                color: AppColors.textSecondary,
                 tooltip: 'Reset Queue',
               ),
               // History button
@@ -833,7 +833,7 @@ class _MiniStat extends StatelessWidget {
           Text(
             label,
             style: const TextStyle(
-              color: AppColors.textMuted,
+              color: AppColors.textSecondary,
               fontSize: 11,
               fontWeight: FontWeight.w500,
             ),
