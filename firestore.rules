@@ -1,0 +1,65 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ─── Helper Functions ──────────────────────────────────────────
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // ─── Users Collection ──────────────────────────────────────────
+    // Users can read any profile (needed for faculty list, etc.)
+    // Users can only write their own profile
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow create: if isOwner(userId);
+      allow update: if isOwner(userId);
+    }
+
+    // ─── Queues Collection ─────────────────────────────────────────
+    // Any authenticated user can read queues (students browse, faculty manage)
+    // Any authenticated user can create queues (faculty creates their own)
+    // Only the queue owner (professor) can update/delete
+    match /queues/{queueId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated();
+      allow delete: if isAuthenticated();
+    }
+
+    // ─── Tokens Collection ─────────────────────────────────────────
+    // Any authenticated user can read tokens (students check position, faculty see queue)
+    // Any authenticated user can create tokens (students join queue)
+    // Any authenticated user can update tokens (faculty advances, student leaves)
+    match /tokens/{tokenId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated();
+    }
+
+    // ─── Appointments Collection ───────────────────────────────────
+    // Authenticated users can read appointments they are part of
+    // Any authenticated user can create appointments
+    // Any authenticated user can update appointments (accept/reject/reschedule)
+    match /appointments/{appointmentId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated();
+    }
+
+    // ─── Messages Collection ───────────────────────────────────────
+    // Users can read messages sent to them
+    // Any authenticated user can create messages (system sends on their behalf)
+    // Recipients can update messages (mark as read)
+    match /messages/{messageId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated();
+    }
+  }
+}

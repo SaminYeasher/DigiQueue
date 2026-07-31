@@ -92,6 +92,13 @@ class _AuthGate extends ConsumerWidget {
       ),
       data: (user) {
         if (user == null) {
+          // User logged out — invalidate all user-specific providers
+          // so that stale Firestore listeners don't persist into the
+          // next session and cause permission-denied errors.
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            ref.invalidate(currentUserProfileProvider);
+            ref.invalidate(userRoleProvider);
+          });
           return const LoginScreen();
         }
 
@@ -110,7 +117,23 @@ class _AuthGate extends ConsumerWidget {
               child: CircularProgressIndicator(color: AppColors.primary),
             ),
           ),
-          error: (_, _) => const RoleSelectScreen(),
+          error: (error, _) {
+            // If we get a permission error, invalidate and retry.
+            // This handles the transient state during auth transitions.
+            final errorStr = error.toString().toLowerCase();
+            if (errorStr.contains('permission-denied') ||
+                errorStr.contains('permission_denied')) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                ref.invalidate(currentUserProfileProvider);
+              });
+              return const Scaffold(
+                body: Center(
+                  child: CircularProgressIndicator(color: AppColors.primary),
+                ),
+              );
+            }
+            return const RoleSelectScreen();
+          },
           data: (profile) {
             if (profile == null || profile.role.isEmpty) {
               return const RoleSelectScreen();
