@@ -13,6 +13,11 @@ class AppColors {
   static const surfaceCard = Color(0xFF4A0023);  
   static const surfaceHighlight = Color(0xFF6A0032); 
 
+  // Typography & Dividers
+  static const textPrimary = Color(0xFFFFF0F5);   
+  static const textSecondary = Color(0xFFC0A6B2); 
+  static const outline = Color(0xFF5C1439);       
+
   // Status colors
   static const success = Color(0xFF2ECC71); // Live / your turn
   static const successGlow = Color(0x332ECC71);
@@ -21,10 +26,10 @@ class AppColors {
   static const error = Color(0xFFFF6B6B); // Closed / skipped
   static const errorGlow = Color(0x33FF6B6B);
 
-  // Typography & Dividers
-  static const textPrimary = Color(0xFFFFF0F5);   
-  static const textSecondary = Color(0xFFC0A6B2); 
-  static const outline = Color(0xFF5C1439);
+  // // Text
+  // static const textPrimary = Color(0xFFFFFFFF);
+  // static const textSecondary = Color(0xFFB0B0CC);
+  // static const textMuted = Color(0xFF6E6E8A);
 
   // Gradients
   static const primaryGradient = LinearGradient(
@@ -36,13 +41,13 @@ class AppColors {
   static const backgroundGradient = LinearGradient(
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
-    colors: [background, surface, background],
+    colors: [Color(0xFF4C0024), Color(0xFF6A0032), Color(0xFF3C001C)],
   );
 
   static const cardGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [surfaceCard, surface],
+    colors: [Color(0xFF530027), Color(0xFF3C001C)],
   );
 
   static const successGradient = LinearGradient(
@@ -57,7 +62,7 @@ class AppTheme {
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,
-      scaffoldBackgroundColor: AppColors.background,
+      scaffoldBackgroundColor: AppColors.surface,
       colorScheme: const ColorScheme.dark(
         primary: AppColors.primary,
         secondary: AppColors.primaryLight,
@@ -170,7 +175,7 @@ class AppTheme {
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: AppColors.outline),
+          borderSide: BorderSide(color: AppColors.textMuted.withValues(alpha: 0.3)),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
@@ -180,7 +185,7 @@ class AppTheme {
           borderRadius: BorderRadius.circular(16),
           borderSide: const BorderSide(color: AppColors.error, width: 1.5),
         ),
-        hintStyle: const TextStyle(color: AppColors.textSecondary),
+        hintStyle: const TextStyle(color: AppColors.textMuted),
         labelStyle: const TextStyle(color: AppColors.textSecondary),
       ),
       cardTheme: CardThemeData(
@@ -196,7 +201,7 @@ class AppTheme {
           if (states.contains(WidgetState.selected)) {
             return AppColors.success;
           }
-          return AppColors.outline;
+          return AppColors.textMuted;
         }),
         trackColor: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
@@ -214,7 +219,7 @@ class AppTheme {
         behavior: SnackBarBehavior.floating,
       ),
       dialogTheme: DialogThemeData(
-        backgroundColor: AppColors.surfaceHighlight,
+        backgroundColor: AppColors.surfaceLight,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(24),
         ),
