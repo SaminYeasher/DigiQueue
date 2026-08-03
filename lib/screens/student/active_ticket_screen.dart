@@ -292,29 +292,45 @@ class _ActiveTicketScreenState extends ConsumerState<ActiveTicketScreen>
     }
 
     final currentServing = queue?.currentServing ?? 0;
-    
-    // Whether it's exactly this student's turn and they are actively being served
-    final isYourTurn = token.tokenNumber == currentServing &&
-        (queue?.currentStudentStatus == 'serving' ||
-            queue?.currentStudentStatus == 'on_hold');
+    final queueStatus = queue?.currentStudentStatus;
 
-    // Calculate people ahead
-    // If someone is actively being served (serving/on_hold), they count as 1 person ahead if token > currentServing.
-    // If the queue is finished or the current person is accepted/rejected, no one is actively being served,
-    // so people ahead is just tokenNumber - currentServing - 1.
-    int peopleAhead = token.tokenNumber - currentServing;
-    if (queue?.currentStudentStatus == 'accepted' || 
-        queue?.currentStudentStatus == 'rejected' || 
-        queue?.currentStudentStatus == null) {
-      peopleAhead -= 1;
+    // Queue hasn't started yet (professor hasn't hit Next Student)
+    final queueNotStarted = currentServing == 0;
+
+    // It's this student's turn when:
+    //   • their token matches the currently serving number, AND
+    //   • the professor has actively called them (status = serving or on_hold)
+    final isYourTurn = !queueNotStarted &&
+        token.tokenNumber == currentServing &&
+        (queueStatus == 'serving' || queueStatus == 'on_hold');
+
+    // People ahead calculation:
+    //   When queue hasn't started: everyone with a lower token is "ahead" — but
+    //   for student #1 that means 0 people ahead (they are first).
+    //   When queue is running: count = tokenNumber - currentServing - 1
+    //     (subtract 1 because currentServing is being served right now, not "ahead")
+    //   When current student is done (accepted/rejected/null after serving):
+    //     currentServing is moving forward, so don't subtract an extra slot.
+    int peopleAhead;
+    if (queueNotStarted) {
+      // Queue hasn't started — everyone with tokenNumber less than this student is ahead
+      peopleAhead = (token.tokenNumber - 1).clamp(0, 999);
+    } else if (queueStatus == 'serving' || queueStatus == 'on_hold') {
+      // Someone is actively being served — they occupy slot currentServing
+      // Students behind them: tokenNumber - currentServing - 1
+      peopleAhead = (token.tokenNumber - currentServing - 1).clamp(0, 999);
+    } else {
+      // accepted / rejected / null — currentServing slot is free (just finished)
+      // Professor needs to hit Next, so this student is effectively token - currentServing slots back
+      peopleAhead = (token.tokenNumber - currentServing).clamp(0, 999);
     }
-    if (peopleAhead < 0) peopleAhead = 0;
 
     return TicketDisplay(
       tokenNumber: token.tokenNumber,
       currentServing: currentServing,
       peopleAhead: peopleAhead,
       isYourTurn: isYourTurn,
+      queueStarted: !queueNotStarted,
     );
   }
 }

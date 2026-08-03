@@ -8,6 +8,8 @@ class TicketDisplay extends StatefulWidget {
   final int currentServing;
   final int peopleAhead;
   final bool isYourTurn;
+  /// True when the professor has started calling students (currentServing > 0)
+  final bool queueStarted;
 
   const TicketDisplay({
     super.key,
@@ -15,6 +17,7 @@ class TicketDisplay extends StatefulWidget {
     required this.currentServing,
     required this.peopleAhead,
     required this.isYourTurn,
+    this.queueStarted = true,
   });
 
   @override
@@ -83,7 +86,10 @@ class _TicketDisplayState extends State<TicketDisplay>
   }
 
   bool get _isYourTurn => widget.isYourTurn;
-  bool get _isAlmostTurn => widget.peopleAhead <= 2 && !_isYourTurn;
+  // Only trigger "almost your turn" when the queue has actually started AND
+  // there are 2 or fewer people left ahead (not when queue is idle at 0)
+  bool get _isAlmostTurn =>
+      widget.queueStarted && widget.peopleAhead <= 2 && !_isYourTurn;
 
   Color get _statusColor {
     if (_isYourTurn) return AppColors.success;
@@ -198,8 +204,8 @@ class _TicketDisplayState extends State<TicketDisplay>
 
         // ── Currently Serving ──
         Text(
-          'CURRENTLY SERVING',
-          style: TextStyle(
+          widget.queueStarted ? 'CURRENTLY SERVING' : 'QUEUE STATUS',
+          style: const TextStyle(
             color: AppColors.textSecondary,
             fontSize: 12,
             fontWeight: FontWeight.w600,
@@ -213,18 +219,20 @@ class _TicketDisplayState extends State<TicketDisplay>
             padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
             decoration: GlassDecoration.elevated(glowColor: _statusColor),
             child: Text(
-              '#$_displayedServing',
+              widget.queueStarted ? '#$_displayedServing' : 'Waiting to start',
               style: TextStyle(
-                color: _statusColor,
-                fontSize: 36,
-                fontWeight: FontWeight.w800,
+                color: widget.queueStarted
+                    ? _statusColor
+                    : AppColors.textSecondary,
+                fontSize: widget.queueStarted ? 36 : 18,
+                fontWeight: FontWeight.w700,
               ),
             ),
           ),
         ),
         const SizedBox(height: 24),
 
-        // ── People Ahead ──
+        // ── People Ahead / Status ──
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
           decoration: BoxDecoration(
@@ -240,7 +248,9 @@ class _TicketDisplayState extends State<TicketDisplay>
               Icon(
                 _isYourTurn
                     ? Icons.arrow_forward_rounded
-                    : Icons.people_outline_rounded,
+                    : !widget.queueStarted
+                        ? Icons.hourglass_top_rounded
+                        : Icons.people_outline_rounded,
                 color: _statusColor,
                 size: 20,
               ),
@@ -248,7 +258,11 @@ class _TicketDisplayState extends State<TicketDisplay>
               Text(
                 _isYourTurn
                     ? 'Head to the office now!'
-                    : '${widget.peopleAhead} ${widget.peopleAhead == 1 ? 'person' : 'people'} ahead',
+                    : !widget.queueStarted
+                        ? widget.peopleAhead == 0
+                            ? 'You\'re first — queue starting soon'
+                            : '${widget.peopleAhead} ${widget.peopleAhead == 1 ? 'person' : 'people'} ahead'
+                        : '${widget.peopleAhead} ${widget.peopleAhead == 1 ? 'person' : 'people'} ahead',
                 style: TextStyle(
                   color: _statusColor,
                   fontSize: 15,

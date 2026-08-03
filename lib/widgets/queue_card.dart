@@ -192,13 +192,24 @@ class _QueueCardState extends State<QueueCard>
               children: [
                 _StatChip(
                   icon: Icons.confirmation_number_outlined,
-                  label: 'Serving',
-                  value: '#${queue.currentServing}',
+                  label: queue.isActivelyServing ? 'Serving' : 'Status',
+                  value: queue.isActivelyServing
+                      ? '#${queue.currentServing}'
+                      : queue.isQueueEmpty
+                          ? 'Done'
+                          : '—',
+                  valueColor: queue.isActivelyServing
+                      ? statusColor
+                      : queue.isQueueEmpty
+                          ? AppColors.primary
+                          : AppColors.textSecondary,
                 ),
                 const SizedBox(width: 12),
                 _StatChip(
                   icon: Icons.people_outline_rounded,
                   label: 'Waiting',
+                  // waitingCount already excludes the current student (clamped, lastIssuedToken - currentServing)
+                  // When queue hasn't started, all joined students are waiting
                   value: '${queue.waitingCount}',
                 ),
                 const Spacer(),
@@ -283,11 +294,13 @@ class _StatChip extends StatelessWidget {
   final IconData icon;
   final String label;
   final String value;
+  final Color? valueColor;
 
   const _StatChip({
     required this.icon,
     required this.label,
     required this.value,
+    this.valueColor,
   });
 
   @override
@@ -316,8 +329,8 @@ class _StatChip extends StatelessWidget {
               ),
               Text(
                 value,
-                style: const TextStyle(
-                  color: AppColors.textPrimary,
+                style: TextStyle(
+                  color: valueColor ?? AppColors.textPrimary,
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
                 ),
@@ -329,3 +342,4 @@ class _StatChip extends StatelessWidget {
     );
   }
 }
+
