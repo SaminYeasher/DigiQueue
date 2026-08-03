@@ -239,10 +239,14 @@ class DatabaseService {
         rejectedToken = TokenModel.fromFirestore(doc);
       }
 
-      // Advance to next student
+      // If newServing exceeds lastIssuedToken, the queue is empty — use null
+      // status so the UI shows the "Queue Empty" state instead of a phantom token.
+      final newStatus =
+          newServing > queue.lastIssuedToken ? null : 'serving';
+
       transaction.update(_queuesRef.doc(queueId), {
         'currentServing': newServing,
-        'currentStudentStatus': 'serving',
+        'currentStudentStatus': newStatus,
         'holdUntil': null,
         'holdDurationMinutes': null,
       });
@@ -363,10 +367,14 @@ class DatabaseService {
         transaction.update(doc.reference, {'status': 'completed'});
       }
 
-      // Update queue's currentServing
+      // If newServing exceeds lastIssuedToken, the queue is empty — use null
+      // status so the UI shows the "Queue Empty" state instead of a phantom token.
+      final newStatus =
+          newServing > queue.lastIssuedToken ? null : 'serving';
+
       transaction.update(_queuesRef.doc(queueId), {
         'currentServing': newServing,
-        'currentStudentStatus': 'serving',
+        'currentStudentStatus': newStatus,
         'holdUntil': null,
         'holdDurationMinutes': null,
       });

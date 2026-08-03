@@ -1,4 +1,4 @@
-name: digital_queue
+name: DigiQueue
 description: "DigiQueue — Virtual Token System for Office Hours"
 publish_to: 'none'
 version: 1.0.0+1

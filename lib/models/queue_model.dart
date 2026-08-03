@@ -83,8 +83,19 @@ class QueueModel {
     );
   }
 
-  /// Number of students currently waiting in this queue
-  int get waitingCount => lastIssuedToken - currentServing;
+  /// Number of students still waiting *behind* the current one.
+  /// Clamped to 0 — can never go negative.
+  int get waitingCount => (lastIssuedToken - currentServing).clamp(0, 99999);
+
+  /// True when there is a valid student currently at the desk.
+  /// This is true even for the last student (currentServing == lastIssuedToken).
+  bool get isActivelyServing =>
+      currentServing > 0 && currentServing <= lastIssuedToken;
+
+  /// True when the queue has run out of students to serve.
+  bool get isQueueEmpty =>
+      lastIssuedToken == 0 ||
+      (currentStudentStatus == null && currentServing > lastIssuedToken);
 
   /// Whether the current student is on hold
   bool get isOnHold =>

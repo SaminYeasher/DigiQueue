@@ -11,7 +11,6 @@ import '../../widgets/up_next_list.dart';
 import '../../widgets/faculty_action_buttons.dart';
 import '../../widgets/hold_timer_widget.dart';
 import '../../widgets/inbox_badge.dart';
-import '../auth/login_screen.dart';
 import 'faculty_appointments_screen.dart';
 import 'faculty_inbox_screen.dart';
 import 'queue_history_screen.dart';
@@ -524,8 +523,9 @@ class _QueueControlScreenState extends ConsumerState<QueueControlScreen>
               ),
             ),
 
-          // ── Faculty Action Buttons (Accept/Hold/Reject) ──
+          // ── Faculty Action Buttons (Done/Hold/Reject/Next) ──
           FacultyActionButtons(
+            isActivelyServing: selectedQueue.isActivelyServing,
             hasWaiting: selectedQueue.waitingCount > 0,
             isOnHold: selectedQueue.isOnHold,
             currentStudentStatus: selectedQueue.currentStudentStatus,
@@ -646,48 +646,54 @@ class _LiveControlCard extends StatelessWidget {
           ),
           const SizedBox(height: 24),
 
-          // ── Currently Serving ──
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(vertical: 28),
-            decoration: BoxDecoration(
-              color: statusColor.withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(
-                color: statusColor.withValues(alpha: 0.2),
-              ),
-            ),
-            child: Column(
-              children: [
-                Text(
-                  'CURRENTLY SERVING',
-                  style: TextStyle(
-                    color: AppColors.textSecondary,
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: 2,
+          // ── Currently Serving / Queue Empty ──
+          queue.isQueueEmpty
+              ? _QueueEmptyCard()
+              : Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(vertical: 28),
+                  decoration: BoxDecoration(
+                    color: statusColor.withValues(alpha: 0.08),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: statusColor.withValues(alpha: 0.2),
+                    ),
+                  ),
+                  child: Column(
+                    children: [
+                      Text(
+                        queue.isActivelyServing
+                            ? 'CURRENTLY SERVING'
+                            : 'READY TO START',
+                        style: const TextStyle(
+                          color: AppColors.textSecondary,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 2,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        queue.isActivelyServing
+                            ? '#${queue.currentServing}'
+                            : '—',
+                        style: TextStyle(
+                          color: statusColor,
+                          fontSize: 52,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                      // Show status badge
+                      if (queue.currentStudentStatus != null &&
+                          queue.isActivelyServing)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 8),
+                          child: _StatusBadge(
+                              status: queue.currentStudentStatus!),
+                        ),
+                    ],
                   ),
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  '#${queue.currentServing}',
-                  style: TextStyle(
-                    color: statusColor,
-                    fontSize: 52,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-                // Show status badge
-                if (queue.currentStudentStatus != null &&
-                    queue.currentServing > 0)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8),
-                    child: _StatusBadge(
-                        status: queue.currentStudentStatus!),
-                  ),
-              ],
-            ),
-          ),
           const SizedBox(height: 16),
 
           // ── Stats Row ──
@@ -740,7 +746,58 @@ class _LiveControlCard extends StatelessWidget {
   }
 }
 
+
+// ── Queue Empty Card ───────────────────────────────────────────────
+
+class _QueueEmptyCard extends StatelessWidget {
+  const _QueueEmptyCard();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 24),
+      decoration: BoxDecoration(
+        color: AppColors.primary.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: AppColors.primary.withValues(alpha: 0.25),
+        ),
+      ),
+      child: Column(
+        children: [
+          Icon(
+            Icons.check_circle_outline_rounded,
+            size: 44,
+            color: AppColors.primary.withValues(alpha: 0.85),
+          ),
+          const SizedBox(height: 12),
+          const Text(
+            'ALL DONE',
+            style: TextStyle(
+              color: AppColors.primary,
+              fontSize: 13,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 2.5,
+            ),
+          ),
+          const SizedBox(height: 6),
+          const Text(
+            'Queue is empty — great session!',
+            style: TextStyle(
+              color: AppColors.textSecondary,
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _StatusBadge extends StatelessWidget {
+
   final String status;
 
   const _StatusBadge({required this.status});
