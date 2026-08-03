@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 
@@ -8,8 +9,13 @@ class TicketDisplay extends StatefulWidget {
   final int currentServing;
   final int peopleAhead;
   final bool isYourTurn;
+
   /// True when the professor has started calling students (currentServing > 0)
   final bool queueStarted;
+
+  /// Non-null when it is THIS student's turn and the professor put a hold.
+  /// A countdown timer will be shown to the student.
+  final DateTime? holdUntil;
 
   const TicketDisplay({
     super.key,
@@ -18,6 +24,7 @@ class TicketDisplay extends StatefulWidget {
     required this.peopleAhead,
     required this.isYourTurn,
     this.queueStarted = true,
+    this.holdUntil,
   });
 
   @override
@@ -32,6 +39,10 @@ class _TicketDisplayState extends State<TicketDisplay>
   late Animation<double> _scaleAnimation;
 
   int _displayedServing = 0;
+
+  // Hold countdown
+  Timer? _holdTimer;
+  Duration _holdRemaining = Duration.zero;
 
   @override
   void initState() {
@@ -60,6 +71,7 @@ class _TicketDisplayState extends State<TicketDisplay>
       _pulseController.repeat(reverse: true);
     }
     _numberController.forward();
+    _startHoldTimer();
   }
 
   @override
@@ -76,28 +88,61 @@ class _TicketDisplayState extends State<TicketDisplay>
       _pulseController.stop();
       _pulseController.reset();
     }
+    if (oldWidget.holdUntil != widget.holdUntil) {
+      _holdTimer?.cancel();
+      _startHoldTimer();
+    }
   }
 
   @override
   void dispose() {
+    _holdTimer?.cancel();
     _pulseController.dispose();
     _numberController.dispose();
     super.dispose();
   }
 
+  void _startHoldTimer() {
+    if (widget.holdUntil == null) {
+      setState(() => _holdRemaining = Duration.zero);
+      return;
+    }
+    _updateHoldRemaining();
+    _holdTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (!mounted) return;
+      _updateHoldRemaining();
+    });
+  }
+
+  void _updateHoldRemaining() {
+    final remaining = widget.holdUntil!.difference(DateTime.now());
+    setState(() {
+      _holdRemaining = remaining.isNegative ? Duration.zero : remaining;
+    });
+  }
+
+  String get _holdCountdown {
+    final m = _holdRemaining.inMinutes.remainder(60).toString().padLeft(2, '0');
+    final s = _holdRemaining.inSeconds.remainder(60).toString().padLeft(2, '0');
+    return '$m:$s';
+  }
+
   bool get _isYourTurn => widget.isYourTurn;
+
   // Only trigger "almost your turn" when the queue has actually started AND
   // there are 2 or fewer people left ahead (not when queue is idle at 0)
   bool get _isAlmostTurn =>
       widget.queueStarted && widget.peopleAhead <= 2 && !_isYourTurn;
 
   Color get _statusColor {
+    if (widget.holdUntil != null) return AppColors.warning;
     if (_isYourTurn) return AppColors.success;
     if (_isAlmostTurn) return AppColors.warning;
     return AppColors.primary;
   }
 
   Color get _glowColor {
+    if (widget.holdUntil != null) return AppColors.warningGlow;
     if (_isYourTurn) return AppColors.successGlow;
     if (_isAlmostTurn) return AppColors.warningGlow;
     return AppColors.surfaceHighlight;
@@ -108,8 +153,63 @@ class _TicketDisplayState extends State<TicketDisplay>
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        // ── "It's Your Turn!" Banner ──
-        if (_isYourTurn)
+        // ── Hold Banner (professor put the queue on hold) ──
+        if (widget.holdUntil != null)
+          AnimatedBuilder(
+            animation: _pulseController,
+            builder: (context, child) {
+              return Transform.scale(
+                scale: _pulseAnimation.value,
+                child: child,
+              );
+            },
+            child: Container(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              margin: const EdgeInsets.only(bottom: 20),
+              decoration: BoxDecoration(
+                color: AppColors.warning.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: AppColors.warning.withValues(alpha: 0.35),
+                ),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.pause_circle_rounded,
+                      color: AppColors.warning, size: 22),
+                  const SizedBox(width: 10),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Queue on hold',
+                        style: TextStyle(
+                          color: AppColors.warning,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      Text(
+                        _holdRemaining > Duration.zero
+                            ? 'Resuming in $_holdCountdown'
+                            : 'Resuming shortly…',
+                        style: TextStyle(
+                          color: AppColors.warning.withValues(alpha: 0.8),
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+        // ── "It's Your Turn!" Banner (only when not on hold) ──
+        if (_isYourTurn && widget.holdUntil == null)
           AnimatedBuilder(
             animation: _pulseController,
             builder: (context, child) {
@@ -246,23 +346,27 @@ class _TicketDisplayState extends State<TicketDisplay>
             mainAxisSize: MainAxisSize.min,
             children: [
               Icon(
-                _isYourTurn
+                _isYourTurn && widget.holdUntil == null
                     ? Icons.arrow_forward_rounded
                     : !widget.queueStarted
                         ? Icons.hourglass_top_rounded
-                        : Icons.people_outline_rounded,
+                        : widget.holdUntil != null
+                            ? Icons.pause_rounded
+                            : Icons.people_outline_rounded,
                 color: _statusColor,
                 size: 20,
               ),
               const SizedBox(width: 8),
               Text(
-                _isYourTurn
+                _isYourTurn && widget.holdUntil == null
                     ? 'Head to the office now!'
-                    : !widget.queueStarted
-                        ? widget.peopleAhead == 0
-                            ? 'You\'re first — queue starting soon'
-                            : '${widget.peopleAhead} ${widget.peopleAhead == 1 ? 'person' : 'people'} ahead'
-                        : '${widget.peopleAhead} ${widget.peopleAhead == 1 ? 'person' : 'people'} ahead',
+                    : widget.holdUntil != null
+                        ? 'Your turn — professor will be back'
+                        : !widget.queueStarted
+                            ? widget.peopleAhead == 0
+                                ? "You're first — queue starting soon"
+                                : '${widget.peopleAhead} ${widget.peopleAhead == 1 ? 'person' : 'people'} ahead'
+                            : '${widget.peopleAhead} ${widget.peopleAhead == 1 ? 'person' : 'people'} ahead',
                 style: TextStyle(
                   color: _statusColor,
                   fontSize: 15,

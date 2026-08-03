@@ -313,11 +313,11 @@ class _QueueControlScreenState extends ConsumerState<QueueControlScreen>
                         ),
                       ),
                       const SizedBox(width: 12),
-                      const Expanded(
+                      Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
+                            const Text(
                               'Queue Control',
                               style: TextStyle(
                                 color: AppColors.textPrimary,
@@ -326,8 +326,8 @@ class _QueueControlScreenState extends ConsumerState<QueueControlScreen>
                               ),
                             ),
                             Text(
-                              'Manage your office hours',
-                              style: TextStyle(
+                              'Hi, ${user?.displayName?.split(' ').first ?? 'Professor'} 👋',
+                              style: const TextStyle(
                                 color: AppColors.textSecondary,
                                 fontSize: 13,
                               ),

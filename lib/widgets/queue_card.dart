@@ -130,50 +130,64 @@ class _QueueCardState extends State<QueueCard>
                     ],
                   ),
                 ),
-                // Live status indicator
+                // Live / On Hold / Closed status badge
                 AnimatedBuilder(
                   animation: _pulseController,
                   builder: (context, child) {
-                    final scale =
-                        queue.isLive ? 1.0 + _pulseController.value * 0.3 : 1.0;
+                    final isOnHold = queue.isOnHold;
+                    final badgeColor = isOnHold
+                        ? AppColors.warning
+                        : statusColor;
+                    final label = isOnHold
+                        ? 'On Hold'
+                        : queue.isLive
+                            ? 'Live'
+                            : 'Closed';
+                    final shouldPulse = queue.isLive && !isOnHold;
+                    final scale = shouldPulse
+                        ? 1.0 + _pulseController.value * 0.3
+                        : 1.0;
                     return Container(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
-                        color: statusColor.withValues(alpha: 0.15),
+                        color: badgeColor.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(
-                          color: statusColor.withValues(alpha: 0.3),
+                          color: badgeColor.withValues(alpha: 0.3),
                         ),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Transform.scale(
-                            scale: scale,
-                            child: Container(
-                              width: 8,
-                              height: 8,
-                              decoration: BoxDecoration(
-                                color: statusColor,
-                                shape: BoxShape.circle,
-                                boxShadow: queue.isLive
-                                    ? [
-                                        BoxShadow(
-                                          color: statusColor
-                                              .withValues(alpha: 0.6),
-                                          blurRadius: 8,
-                                        ),
-                                      ]
-                                    : null,
-                              ),
-                            ),
-                          ),
+                          isOnHold
+                              ? Icon(Icons.pause_circle_rounded,
+                                  size: 10, color: badgeColor)
+                              : Transform.scale(
+                                  scale: scale,
+                                  child: Container(
+                                    width: 8,
+                                    height: 8,
+                                    decoration: BoxDecoration(
+                                      color: badgeColor,
+                                      shape: BoxShape.circle,
+                                      boxShadow: queue.isLive
+                                          ? [
+                                              BoxShadow(
+                                                color: badgeColor
+                                                    .withValues(alpha: 0.6),
+                                                blurRadius: 8,
+                                              ),
+                                            ]
+                                          : null,
+                                    ),
+                                  ),
+                                ),
                           const SizedBox(width: 6),
                           Text(
-                            queue.isLive ? 'Live' : 'Closed',
+                            label,
                             style: TextStyle(
-                              color: statusColor,
+                              color: badgeColor,
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
                             ),
@@ -183,6 +197,7 @@ class _QueueCardState extends State<QueueCard>
                     );
                   },
                 ),
+
               ],
             ),
             const SizedBox(height: 16),

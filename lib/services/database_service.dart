@@ -53,14 +53,26 @@ class DatabaseService {
 
   // ─── Queue Streams ───────────────────────────────────────────────
 
-  /// Stream all queues, ordered by professorName
+  /// Stream all *live* queues for students, newest first
   Stream<List<QueueModel>> streamAllQueues() {
     return _queuesRef
-        .orderBy('professorName')
+        .where('isLive', isEqualTo: true)
         .snapshots()
-        .map((snapshot) => snapshot.docs
-            .map((doc) => QueueModel.fromFirestore(doc))
-            .toList());
+        .map((snapshot) {
+      final queues = snapshot.docs
+          .map((doc) => QueueModel.fromFirestore(doc))
+          .toList();
+      // Sort newest first (client-side to avoid needing a composite index)
+      queues.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+      return queues;
+    });
+  }
+
+  /// Get a single queue by ID
+  Future<QueueModel?> getQueue(String queueId) async {
+    final doc = await _queuesRef.doc(queueId).get();
+    if (!doc.exists) return null;
+    return QueueModel.fromFirestore(doc);
   }
 
   /// Stream a single queue by ID
@@ -89,6 +101,7 @@ class DatabaseService {
       'currentStudentStatus': null,
       'holdUntil': null,
       'holdDurationMinutes': null,
+      'createdAt': Timestamp.now(),
     });
     return docRef.id;
   }
@@ -239,6 +252,20 @@ class DatabaseService {
         rejectedToken = TokenModel.fromFirestore(doc);
       }
 
+      // If advancing into a valid waiting student slot, mark their token as 'serving'
+      if (newServing <= queue.lastIssuedToken) {
+        final nextTokens = await _tokensRef
+            .where('queueId', isEqualTo: queueId)
+            .where('tokenNumber', isEqualTo: newServing)
+            .where('status', isEqualTo: 'waiting')
+            .limit(1)
+            .get();
+
+        for (final doc in nextTokens.docs) {
+          transaction.update(doc.reference, {'status': 'serving'});
+        }
+      }
+
       // If newServing exceeds lastIssuedToken, the queue is empty — use null
       // status so the UI shows the "Queue Empty" state instead of a phantom token.
       final newStatus =
@@ -297,7 +324,7 @@ class DatabaseService {
       final existingTokens = await _tokensRef
           .where('queueId', isEqualTo: queueId)
           .where('studentId', isEqualTo: studentId)
-          .where('status', isEqualTo: 'waiting')
+          .where('status', whereIn: ['waiting', 'serving', 'on_hold', 'accepted'])
           .limit(1)
           .get();
 
@@ -345,26 +372,74 @@ class DatabaseService {
     return _tokensRef.doc(tokenId).update({'status': 'skipped'});
   }
 
-  /// Advance to the next student — increments currentServing and marks the
-  /// previous token as "completed"
+  /// Advance to / call in the next student.
+  ///
+  /// Two distinct flows handled:
+  ///   A) "Call in" — the token at currentServing is still 'waiting'.
+  ///      This happens on a fresh queue start (currentServing=1 is the first
+  ///      student) OR when the queue refills after going empty
+  ///      (currentServing == lastIssuedToken and the new student's token equals
+  ///      currentServing). In this case we just mark them as 'serving' and do
+  ///      NOT advance currentServing.
+  ///
+  ///   B) "Advance" — the token at currentServing was already served (accepted /
+  ///      on_hold / serving). Mark it completed and move to the next slot.
   Future<void> nextStudent(String queueId) async {
     await _db.runTransaction((transaction) async {
       final queueDoc = await transaction.get(_queuesRef.doc(queueId));
       if (!queueDoc.exists) return;
 
       final queue = QueueModel.fromFirestore(queueDoc);
+
+      // ── Flow A: Is the token at currentServing still 'waiting'? ────────
+      // This means either the queue just started, or it refilled after empty.
+      // We call them in (mark 'serving') WITHOUT advancing currentServing.
+      final waitingAtCurrentSlot = await _tokensRef
+          .where('queueId', isEqualTo: queueId)
+          .where('tokenNumber', isEqualTo: queue.currentServing)
+          .where('status', isEqualTo: 'waiting')
+          .limit(1)
+          .get();
+
+      if (waitingAtCurrentSlot.docs.isNotEmpty) {
+        for (final doc in waitingAtCurrentSlot.docs) {
+          transaction.update(doc.reference, {'status': 'serving'});
+        }
+        transaction.update(_queuesRef.doc(queueId), {
+          'currentStudentStatus': 'serving',
+          'holdUntil': null,
+          'holdDurationMinutes': null,
+        });
+        return; // Done — no counter advance needed
+      }
+
+      // ── Flow B: Advance to the next slot ───────────────────────────────
       final newServing = queue.currentServing + 1;
 
-      // Mark the current token as completed
+      // Mark the current token (if any in a non-waiting state) as completed
       final currentTokens = await _tokensRef
           .where('queueId', isEqualTo: queueId)
           .where('tokenNumber', isEqualTo: queue.currentServing)
-          .where('status', whereIn: ['waiting', 'serving', 'accepted', 'on_hold'])
+          .where('status', whereIn: ['serving', 'accepted', 'on_hold'])
           .limit(1)
           .get();
 
       for (final doc in currentTokens.docs) {
         transaction.update(doc.reference, {'status': 'completed'});
+      }
+
+      // If advancing into a valid waiting student slot, mark their token as 'serving'
+      if (newServing <= queue.lastIssuedToken) {
+        final nextTokens = await _tokensRef
+            .where('queueId', isEqualTo: queueId)
+            .where('tokenNumber', isEqualTo: newServing)
+            .where('status', isEqualTo: 'waiting')
+            .limit(1)
+            .get();
+
+        for (final doc in nextTokens.docs) {
+          transaction.update(doc.reference, {'status': 'serving'});
+        }
       }
 
       // If newServing exceeds lastIssuedToken, the queue is empty — use null
@@ -402,10 +477,27 @@ class DatabaseService {
         transaction.update(doc.reference, {'status': 'skipped'});
       }
 
+      // If advancing into a valid waiting student slot, mark their token as 'serving'
+      if (newServing <= queue.lastIssuedToken) {
+        final nextTokens = await _tokensRef
+            .where('queueId', isEqualTo: queueId)
+            .where('tokenNumber', isEqualTo: newServing)
+            .where('status', isEqualTo: 'waiting')
+            .limit(1)
+            .get();
+
+        for (final doc in nextTokens.docs) {
+          transaction.update(doc.reference, {'status': 'serving'});
+        }
+      }
+
+      final newStatus =
+          newServing > queue.lastIssuedToken ? null : 'serving';
+
       // Update queue's currentServing
       transaction.update(_queuesRef.doc(queueId), {
         'currentServing': newServing,
-        'currentStudentStatus': 'serving',
+        'currentStudentStatus': newStatus,
         'holdUntil': null,
         'holdDurationMinutes': null,
       });
@@ -414,12 +506,14 @@ class DatabaseService {
 
   // ─── Token Streams ──────────────────────────────────────────────
 
-  /// Stream the active "waiting" token for a specific student in a queue
+  /// Stream the active token for a specific student in a queue.
+  /// Includes 'waiting', 'serving', 'on_hold', and 'accepted' so students remain visible
+  /// throughout their session until completed or rejected.
   Stream<TokenModel?> streamStudentToken(String queueId, String studentId) {
     return _tokensRef
         .where('queueId', isEqualTo: queueId)
         .where('studentId', isEqualTo: studentId)
-        .where('status', isEqualTo: 'waiting')
+        .where('status', whereIn: ['waiting', 'serving', 'on_hold', 'accepted'])
         .limit(1)
         .snapshots()
         .map((snapshot) {
@@ -428,11 +522,12 @@ class DatabaseService {
     });
   }
 
-  /// Stream all active tokens for a student across all queues
+  /// Stream all active tokens for a student across all queues.
+  /// Includes 'waiting', 'serving', 'on_hold', and 'accepted'.
   Stream<List<TokenModel>> streamAllStudentTokens(String studentId) {
     return _tokensRef
         .where('studentId', isEqualTo: studentId)
-        .where('status', isEqualTo: 'waiting')
+        .where('status', whereIn: ['waiting', 'serving', 'on_hold', 'accepted'])
         .snapshots()
         .map((snapshot) => snapshot.docs
             .map((doc) => TokenModel.fromFirestore(doc))

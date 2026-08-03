@@ -74,8 +74,7 @@ class FacultyActionButtons extends StatelessWidget {
 
     // Next Student:
     //   • After marking done (accepted state) — move to next
-    //   • No one being served yet (fresh queue, status null or 'rejected') and
-    //     there are still students waiting
+    //   • No one actively being served AND students are waiting (fresh start, post-reject, or refilled after empty)
     final canNext =
         (isActivelyServing && isAccepted) ||
         (!isActivelyServing &&

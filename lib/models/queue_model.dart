@@ -11,8 +11,9 @@ class QueueModel {
   final DateTime? holdUntil;
   final int? holdDurationMinutes;
   final String? currentStudentStatus; // "serving", "on_hold", "accepted", "rejected"
+  final DateTime createdAt;
 
-  const QueueModel({
+  QueueModel({
     required this.id,
     required this.professorName,
     required this.roomNumber,
@@ -23,7 +24,8 @@ class QueueModel {
     this.holdUntil,
     this.holdDurationMinutes,
     this.currentStudentStatus,
-  });
+    DateTime? createdAt,
+  }) : createdAt = createdAt ?? DateTime(2000); // epoch fallback for old docs
 
   factory QueueModel.fromFirestore(DocumentSnapshot<Map<String, dynamic>> doc) {
     final data = doc.data()!;
@@ -38,6 +40,7 @@ class QueueModel {
       holdUntil: (data['holdUntil'] as Timestamp?)?.toDate(),
       holdDurationMinutes: data['holdDurationMinutes'] as int?,
       currentStudentStatus: data['currentStudentStatus'] as String?,
+      createdAt: (data['createdAt'] as Timestamp?)?.toDate(),
     );
   }
 
@@ -54,6 +57,7 @@ class QueueModel {
         'holdDurationMinutes': holdDurationMinutes,
       if (currentStudentStatus != null)
         'currentStudentStatus': currentStudentStatus,
+      'createdAt': Timestamp.fromDate(createdAt),
     };
   }
 
@@ -68,6 +72,7 @@ class QueueModel {
     DateTime? holdUntil,
     int? holdDurationMinutes,
     String? currentStudentStatus,
+    DateTime? createdAt,
   }) {
     return QueueModel(
       id: id ?? this.id,
@@ -80,17 +85,31 @@ class QueueModel {
       holdUntil: holdUntil ?? this.holdUntil,
       holdDurationMinutes: holdDurationMinutes ?? this.holdDurationMinutes,
       currentStudentStatus: currentStudentStatus ?? this.currentStudentStatus,
+      createdAt: createdAt ?? this.createdAt,
     );
   }
 
-  /// Number of students still waiting *behind* the current one.
-  /// Clamped to 0 — can never go negative.
-  int get waitingCount => (lastIssuedToken - currentServing).clamp(0, 99999);
+  /// Number of students waiting in line to be served.
+  /// When no one is actively at the desk (currentStudentStatus == null), all
+  /// tokens from currentServing to lastIssuedToken are waiting.
+  /// When someone is actively being served, only students behind them are waiting.
+  int get waitingCount {
+    if (currentServing == 0) {
+      return lastIssuedToken.clamp(0, 99999);
+    }
+    if (currentStudentStatus == null) {
+      return (lastIssuedToken - currentServing + 1).clamp(0, 99999);
+    }
+    return (lastIssuedToken - currentServing).clamp(0, 99999);
+  }
 
-  /// True when there is a valid student currently at the desk.
-  /// This is true even for the last student (currentServing == lastIssuedToken).
+  /// True ONLY when there is a valid student actively being served at the desk.
+  /// Requires currentStudentStatus to be 'serving', 'on_hold', or 'accepted'.
   bool get isActivelyServing =>
-      currentServing > 0 && currentServing <= lastIssuedToken;
+      currentServing > 0 &&
+      currentServing <= lastIssuedToken &&
+      currentStudentStatus != null &&
+      currentStudentStatus != 'rejected';
 
   /// True when the queue has run out of students to serve.
   bool get isQueueEmpty =>

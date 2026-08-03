@@ -127,11 +127,11 @@ class _QueueListScreenState extends ConsumerState<QueueListScreen>
                             color: Colors.white, size: 20),
                       ),
                       const SizedBox(width: 12),
-                      const Expanded(
+                      Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
+                            const Text(
                               'Office Hours',
                               style: TextStyle(
                                 color: AppColors.textPrimary,
@@ -140,8 +140,8 @@ class _QueueListScreenState extends ConsumerState<QueueListScreen>
                               ),
                             ),
                             Text(
-                              'Find and join a queue',
-                              style: TextStyle(
+                              'Hi, ${user?.displayName?.split(' ').first ?? 'there'} 👋',
+                              style: const TextStyle(
                                 color: AppColors.textSecondary,
                                 fontSize: 13,
                               ),

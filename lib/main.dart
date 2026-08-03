@@ -9,6 +9,8 @@ import 'screens/auth/role_select_screen.dart';
 import 'screens/student/queue_list_screen.dart';
 import 'screens/professor/queue_control_screen.dart';
 import 'providers/auth_provider.dart';
+import 'services/notification_service.dart';
+import 'widgets/app_notification_watcher.dart';
 import 'theme/app_theme.dart';
 
 void main() async {
@@ -18,6 +20,9 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  // Initialize Local Notifications
+  await NotificationService().initialize();
 
   // Lock orientation to portrait
   await SystemChrome.setPreferredOrientations([
@@ -97,9 +102,12 @@ class _AuthGate extends ConsumerWidget {
 
         // If session role is already set, use it
         if (sessionRole != null) {
-          return sessionRole == UserRole.student
-              ? const QueueListScreen()
-              : const QueueControlScreen();
+          return AppNotificationWatcher(
+            userId: user.uid,
+            child: sessionRole == UserRole.student
+                ? const QueueListScreen()
+                : const QueueControlScreen(),
+          );
         }
 
         // Otherwise, try loading role from Firestore
@@ -140,9 +148,12 @@ class _AuthGate extends ConsumerWidget {
               ref.read(userRoleProvider.notifier).state = role;
             });
 
-            return profile.isStudent
-                ? const QueueListScreen()
-                : const QueueControlScreen();
+            return AppNotificationWatcher(
+              userId: user.uid,
+              child: profile.isStudent
+                  ? const QueueListScreen()
+                  : const QueueControlScreen(),
+            );
           },
         );
       },
